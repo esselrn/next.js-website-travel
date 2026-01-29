@@ -1,7 +1,12 @@
+import AboutHeaderSection from "@/components/sections/about/about-header"
+
 export default function AboutPage() {
   return (
-    <section className="min-h-screen">
-      <h1>Tentang Kami</h1>
-    </section>
+    <>
+      <AboutHeaderSection />
+      {/* section 2 */}
+      {/* section 3 */}
+      {/* section 4 */}
+    </>
   )
 }
