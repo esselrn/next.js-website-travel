@@ -19,7 +19,7 @@ export default function DetailLayout({
         </div>
 
         {/* RIGHT SIDEBAR */}
-        <aside className="w-[360px] sticky top-[140px] self-start">
+        <aside className="w-[360px] shrink-0 sticky top-[140px]">
           {sidebar}
         </aside>
 
