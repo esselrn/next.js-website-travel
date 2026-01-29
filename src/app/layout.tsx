@@ -1,10 +1,11 @@
-import type { Metadata } from "next"
 import "./globals.css"
 
+import Navbar from "@/components/organisms/navbar"
+import FooterSection from "@/components/sections/home/footer-section"
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "NusaTrip",
-  description: "Travel Website",
+  description: "Platform perjalanan wisata Indonesia",
 }
 
 export default function RootLayout({
@@ -14,7 +15,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      <body>{children}</body>
+      <body className="font-inter">
+
+        <Navbar />
+
+        <main className="pt-[64px]">
+          {children}
+        </main>
+
+        <FooterSection />
+
+      </body>
     </html>
   )
 }

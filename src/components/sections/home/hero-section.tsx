@@ -1,12 +1,10 @@
 import Image from "next/image"
-import Navbar from "@/components/organisms/navbar"
 import HeroBenefits from "@/components/organisms/hero-benefits"
 import HeroContent from "@/components/organisms/hero-content"
 
 export default function HeroSection() {
   return (
     <section className="relative w-full overflow-hidden">
-      <Navbar />
 
       <div className="relative w-full min-h-[820px] lg:min-h-[880px]">
         <Image

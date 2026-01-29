@@ -5,15 +5,17 @@ import LanguageSwitch from "@/components/molecules/language-switch"
 
 export default function Navbar() {
   return (
-    <header className="absolute top-0 left-0 w-full z-20 bg-[#0B2C4D]/90 backdrop-blur-[5px]
-        z-20">
+    <header className="absolute top-0 left-0 w-full z-20 bg-[#0B2C4D]/90 backdrop-blur">
       <div className="max-w-[1440px] mx-auto h-[64px] flex items-center justify-between px-6 text-white">
 
+        {/* LOGO */}
         <Logo />
 
+        {/* NAVIGATION */}
         <nav className="hidden md:flex items-center gap-6 font-inter text-sm">
+
           <NavLink href="/" label="Beranda" />
-          <NavLink href="/tentang-kami" label="Tentang Kami" />
+          <NavLink href="/about" label="Tentang Kami" />
 
           {/* Paket Wisata */}
           <DropdownMenu
@@ -48,6 +50,7 @@ export default function Navbar() {
 
           {/* Language */}
           <LanguageSwitch />
+
         </nav>
       </div>
     </header>
