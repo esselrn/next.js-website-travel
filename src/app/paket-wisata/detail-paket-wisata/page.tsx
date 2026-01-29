@@ -2,6 +2,7 @@ import PageHeaderSection from "@/components/sections/paket-wisata/detail/page-he
 import GallerySection from "@/components/sections/paket-wisata/detail/gallery"
 import DetailLayout from "@/components/layouts/detail-layout"
 import BookingSidebar from "@/components/sections/paket-wisata/detail/booking-sidebar"
+import PackageInfo from "@/components/sections/paket-wisata/detail/package-info"
 
 export default function DetailPaketWisataPage() {
   return (
@@ -17,12 +18,8 @@ export default function DetailPaketWisataPage() {
       {/* CONTENT + SIDEBAR */}
       <DetailLayout sidebar={<BookingSidebar />}>
         <div>
-          {/* nanti diisi:
-              - Info Paket
-              - Include / Exclude
-              - Itinerary
-              - Map
-          */}
+          <PackageInfo />
+          
         </div>
       </DetailLayout>
     </main>
