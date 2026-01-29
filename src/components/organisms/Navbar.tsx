@@ -22,7 +22,7 @@ export default function Navbar() {
             label="Paket Wisata"
             items={[
               { href: "/paket-wisata", label: "Paket Wisata" },
-              { href: "/detail-paket-wisata", label: "Detail Paket Wisata" },
+              { href: "/paket-wisata/detail-paket-wisata", label: "Detail Paket Wisata" },
             ]}
           />
 
