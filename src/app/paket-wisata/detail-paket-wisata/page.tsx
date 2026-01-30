@@ -9,6 +9,7 @@ import Summary from "@/components/sections/paket-wisata/detail/summary"
 import IncludeExcludeSection from "@/components/sections/paket-wisata/detail/include-exclude"
 import Itinerary from "@/components/sections/paket-wisata/detail/itinerary"
 import LocationMap from "@/components/sections/paket-wisata/detail/lokasi-wisata"
+import NewsletterSection from "@/components/sections/home/newsletter-section"
 
 export default function DetailPaketWisataPage() {
   return (
@@ -39,6 +40,9 @@ export default function DetailPaketWisataPage() {
           <LocationMap />
         </div>
       </DetailLayout>
+
+      {/* FULL WIDTH NEWSLETTER */}
+      <NewsletterSection />
     </main>
   )
 }
