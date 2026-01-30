@@ -1,4 +1,5 @@
 import { NEWSLETTER } from "@/constants/newsletter"
+import { PaperAirplaneIcon } from "@heroicons/react/24/solid"
 
 export default function NewsletterSection() {
   return (
@@ -22,7 +23,7 @@ export default function NewsletterSection() {
           />
 
           <button className="inline-flex items-center gap-2 bg-[#FB8C00] hover:bg-[#e67e00] text-white px-5 py-3 rounded-lg font-inter font-semibold transition whitespace-nowrap">
-            <span>▶</span>
+            <PaperAirplaneIcon className="w-5 h-5 rotate-45" />
             {NEWSLETTER.buttonText}
           </button>
         </div>
