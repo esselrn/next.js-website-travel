@@ -3,12 +3,13 @@ import Rating from "@/components/atoms/rating"
 import Price from "@/components/atoms/price"
 import Button from "@/components/atoms/button"
 
-type Props = {
+type DestinationCardProps = {
   image: string
   title: string
   rating: number
   description: string
   price: string
+  small?: boolean
 }
 
 export default function DestinationCard({
@@ -17,10 +18,15 @@ export default function DestinationCard({
   rating,
   description,
   price,
-}: Props) {
+  small = false,
+}: DestinationCardProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-      <div className="relative h-[220px] w-full">
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
+      <div
+        className={`relative w-full ${
+          small ? "h-[180px]" : "h-[260px]"
+        }`}
+      >
         <Image src={image} alt={title} fill className="object-cover" />
       </div>
 
