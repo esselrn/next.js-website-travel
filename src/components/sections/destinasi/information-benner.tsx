@@ -1,10 +1,11 @@
 import Image from "next/image"
+import Button from "@/components/atoms/button"
 
 export default function InformationBanner() {
   return (
     <section className="w-full py-20">
       <div className="relative max-w-[1440px] mx-auto h-[450px] rounded-xl overflow-hidden">
-        
+
         {/* Background Image */}
         <Image
           src="/assets/labuanbajo01.jpg"
@@ -25,10 +26,11 @@ export default function InformationBanner() {
               Kenyamanan Anda
             </h2>
 
-            <button className="mt-8 inline-flex items-center gap-2 bg-[#FB8C00] hover:bg-[#e67e00] text-white px-6 py-3 rounded-lg font-inter font-semibold transition">
-              JELAJAHI PAKET
-              <span>→</span>
-            </button>
+            <div className="mt-8 flex justify-center">
+              <Button>
+                JELAJAHI PAKET →
+              </Button>
+            </div>
           </div>
         </div>
 
