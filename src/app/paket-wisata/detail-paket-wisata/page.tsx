@@ -3,6 +3,8 @@ import GallerySection from "@/components/sections/paket-wisata/detail/gallery"
 import DetailLayout from "@/components/layouts/detail-layout"
 import BookingSidebar from "@/components/sections/paket-wisata/detail/booking-sidebar"
 import PackageInfo from "@/components/sections/paket-wisata/detail/package-info"
+import PackageMeta from "@/components/sections/paket-wisata/detail/package-meta"
+
 
 export default function DetailPaketWisataPage() {
   return (
@@ -19,7 +21,7 @@ export default function DetailPaketWisataPage() {
       <DetailLayout sidebar={<BookingSidebar />}>
         <div>
           <PackageInfo />
-          
+          <PackageMeta />
         </div>
       </DetailLayout>
     </main>

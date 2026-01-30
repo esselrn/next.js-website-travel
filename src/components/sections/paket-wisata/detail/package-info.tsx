@@ -23,7 +23,6 @@ export default function PackageInfo() {
         {/* RIGHT */}
         <div className="text-right space-y-3">
           <div>
-            <p className="text-sm text-gray-500">Mulai dari</p>
             <p className="text-xl font-bold text-[#0B2C4D]">
               {PACKAGE_INFO.price}
               <span className="text-sm font-normal"> / Orang</span>
