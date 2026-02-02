@@ -1,5 +1,5 @@
-import { SectionTitle } from "@/components/molecules/section/section-title"
-import { MapPin } from "lucide-react"
+import { SectionTitle } from '@/components/molecules/section/section-title'
+import { MapPin } from 'lucide-react'
 
 export default function LocationMap() {
   return (
@@ -11,9 +11,10 @@ export default function LocationMap() {
 
       <div className="w-full h-[280px] rounded-xl overflow-hidden">
         <iframe
-          src="https://www.google.com/maps?q=Raja+Ampat&output=embed"
+          src="https://www.google.com/maps?q=Prambanan,+Kabupaten+Sleman,+Daerah+Istimewa+Yogyakarta&output=embed"
           className="w-full h-full border-0"
           loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
         />
       </div>
     </div>

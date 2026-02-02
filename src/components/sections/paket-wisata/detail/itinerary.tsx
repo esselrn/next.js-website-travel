@@ -24,19 +24,16 @@ export default function Itinerary() {
     <div className="mb-10">
       <SectionTitle icon={<Map size={18} />} title="Rencana Perjalanan" />
 
+      <div className="w-full h-px bg-gray-200 mb-8" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10"></div>
+      
       <div className="space-y-3">
         {days.map((day, i) => (
-          <details
-            key={i}
-            className="border rounded-lg px-5 py-4 shadow-sm cursor-pointer"
-          >
-            <summary className="font-medium text-sm text-[#0B2C4D]">
-              {day.title}
-            </summary>
+          <details key={i} className="border rounded-lg px-5 py-4 shadow-sm cursor-pointer">
+            <summary className="font-medium text-sm text-[#0B2C4D]">{day.title}</summary>
 
-            <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-              {day.detail}
-            </p>
+            <p className="mt-3 text-sm text-gray-600 leading-relaxed">{day.detail}</p>
           </details>
         ))}
       </div>

@@ -6,6 +6,7 @@ import ContactCard from '@/components/sections/destinasi/detail/contact-card'
 import Summary from '@/components/sections/destinasi/detail/summary'
 import IncludeExcludeSection from '@/components/sections/destinasi/detail/include-exclude'
 import Itinerary from '@/components/sections/destinasi/detail/itinerary'
+import LocationMap from '@/components/sections/destinasi/detail/lokasi-wisata'
 
 export default function DetailPaketWisataPage() {
   return (
@@ -31,6 +32,7 @@ export default function DetailPaketWisataPage() {
           <Summary />
           <IncludeExcludeSection />
           <Itinerary />
+          <LocationMap />
         </div>
       </DetailLayout>
     </main>
