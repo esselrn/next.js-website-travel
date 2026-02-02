@@ -31,7 +31,7 @@ export default function Navbar() {
             label="Destinasi"
             items={[
               { href: "/destinasi", label: "Destinasi" },
-              { href: "/detail-destinasi", label: "Detail Destinasi" },
+              { href: "/destinasi/detail-destinasi", label: "Detail Destinasi" },
             ]}
           />
 
