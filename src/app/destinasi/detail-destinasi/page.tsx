@@ -1,6 +1,7 @@
 import PageHeaderSection from "@/components/sections/destinasi/detail/page-header"
 import GallerySection from "@/components/sections/destinasi/detail/gallery"
 import DetailLayout from "@/components/layouts/detail-layout"
+import BookingSidebar from "@/components/sections/destinasi/detail/booking-sidebar"
 
 export default function DetailPaketWisataPage() {
   return (
@@ -17,7 +18,7 @@ export default function DetailPaketWisataPage() {
       <DetailLayout
         sidebar={
           <div className="space-y-6">
-            
+            <BookingSidebar />
             
           </div>
         }
