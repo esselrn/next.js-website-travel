@@ -8,7 +8,7 @@ import IncludeExcludeSection from '@/components/sections/destinasi/detail/includ
 import Itinerary from '@/components/sections/destinasi/detail/itinerary'
 import LocationMap from '@/components/sections/destinasi/detail/lokasi-wisata'
 
-export default function DetailPaketWisataPage() {
+export default function DetailDestinasiPage() {
   return (
     <main>
       {/* HEADER */}

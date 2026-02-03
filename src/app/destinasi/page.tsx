@@ -4,7 +4,7 @@ import InformationBanner from "@/components/sections/destinasi/information-benne
 import TestimonialSection from "@/components/sections/home/testimonial-section"
 import NewsletterSection from "@/components/sections/home/newsletter-section"
 
-export default function PaketWisataPage() {
+export default function DestinasiPage() {
   return (
     <>
       <PageHeaderSection />
