@@ -1,5 +1,5 @@
 import BlogHeader from "@/components/organisms/blog-header"
-import BlogCard from "@/components/molecules/blog-card"
+import BlogCard from "@/components/organisms/blog-card"
 import { blogs } from "@/constants/blogs"
 
 export default function BlogSection() {

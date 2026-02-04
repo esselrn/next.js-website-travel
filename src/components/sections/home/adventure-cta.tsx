@@ -1,6 +1,6 @@
 import Image from "next/image"
 import AdventureContent from "@/components/organisms/adventure-content"
-import PlayButton from "@/components/organisms/play-button"
+import PlayButton from "@/components/atoms/play-button"
 import { ADVENTURE_CTA } from "@/constants/adventure-cta"
 
 export default function AdventureCTA() {

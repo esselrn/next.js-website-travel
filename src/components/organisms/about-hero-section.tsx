@@ -1,5 +1,5 @@
 import Image from "next/image"
-import AboutHeroContent from "@/components/molecules/about-hero-content"
+import AboutHeroContent from "@/components/molecules/section/about-hero-content"
 import { ABOUT_HERO } from "@/constants/about"
 
 export default function AboutHeroSection() {

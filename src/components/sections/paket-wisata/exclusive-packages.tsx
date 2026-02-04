@@ -1,4 +1,4 @@
-import PackageCard from "@/components/molecules/package-card"
+import PackageCard from "@/components/organisms/package-card"
 import { EXCLUSIVE_PACKAGES } from "@/constants/paket-wisata"
 
 export default function ExclusivePackagesSection() {

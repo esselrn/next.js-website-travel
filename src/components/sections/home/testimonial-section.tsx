@@ -1,4 +1,4 @@
-import TestimonialCard from "@/components/molecules/testimonial-card"
+import TestimonialCard from "@/components/organisms/testimonial-card"
 import { testimonials } from "@/constants/testimonials"
 
 export default function TestimonialSection() {

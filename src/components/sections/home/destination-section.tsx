@@ -1,4 +1,4 @@
-import DestinationCard from "@/components/molecules/destination-card"
+import DestinationCard from "@/components/organisms/destination-card"
 import { destinations } from "@/constants/destinations"
 
 export default function DestinationSection() {
