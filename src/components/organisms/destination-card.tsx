@@ -28,7 +28,9 @@ export default function DestinationCard({ image, title, rating, description, pri
 
         <div className="flex items-center justify-between">
           <Price value={price} />
-          <Button>PESAN SEKARANG →</Button>
+
+          {/* BUTTON → DESTINASI */}
+          <Button href="/destinasi">PESAN SEKARANG →</Button>
         </div>
       </div>
     </div>

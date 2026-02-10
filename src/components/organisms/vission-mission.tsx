@@ -1,10 +1,10 @@
-import Image from "next/image"
+import Image from 'next/image'
 
 const stats = [
-  { value: "20+", label: "Tahun Pengalaman" },
-  { value: "2.450+", label: "Pelanggan Puas" },
-  { value: "1.250+", label: "Pemandu Profesional" },
-  { value: "250+", label: "Destinasi Unggulan" },
+  { value: '20+', label: 'Tahun Pengalaman' },
+  { value: '2.450+', label: 'Pelanggan Puas' },
+  { value: '1.250+', label: 'Pemandu Profesional' },
+  { value: '250+', label: 'ulan' }
 ]
 
 export default function VisionMissionSection() {
@@ -29,9 +29,8 @@ export default function VisionMissionSection() {
             <div className="backdrop-blur-md bg-white/10 p-8 rounded-2xl text-white">
               <h3 className="text-2xl font-semibold mb-4">Visi Kami</h3>
               <p className="text-sm leading-relaxed text-white/90">
-                Menjadi agen perjalanan terpercaya yang menginspirasi masyarakat
-                untuk menjelajahi keindahan Indonesia melalui layanan wisata yang
-                berkualitas, aman, dan berkesan.
+                Menjadi agen perjalanan terpercaya yang menginspirasi masyarakat untuk menjelajahi keindahan Indonesia
+                melalui layanan wisata yang berkualitas, aman, dan berkesan.
               </p>
             </div>
 
@@ -54,7 +53,7 @@ export default function VisionMissionSection() {
         {stats.map((item, index) => (
           <div key={index}>
             <h4 className="text-3xl font-bold text-slate-900">
-              {item.value.replace("+", "")}
+              {item.value.replace('+', '')}
               <span className="text-orange-500">+</span>
             </h4>
             <p className="text-sm text-slate-500 mt-1">{item.label}</p>

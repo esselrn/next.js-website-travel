@@ -1,5 +1,5 @@
-import Button from "@/components/atoms/button"
-import Text from "@/components/atoms/text"
+import Button from '@/components/atoms/button'
+import Text from '@/components/atoms/text'
 
 export default function HeroContent() {
   return (
@@ -11,11 +11,11 @@ export default function HeroContent() {
       </Text>
 
       <Text color="light" className="opacity-90 mb-8">
-        Nikmati pengalaman liburan yang nyaman dan terpercaya dengan
-        paket wisata pilihan ke berbagai destinasi terbaik di Indonesia.
+        Nikmati pengalaman liburan yang nyaman dan terpercaya dengan paket wisata pilihan ke berbagai destinasi terbaik di
+        Indonesia.
       </Text>
 
-      <Button>JELAJAHI PAKET →</Button>
+      <Button href="/paket-wisata">JELAJAHI PAKET →</Button>
     </div>
   )
 }

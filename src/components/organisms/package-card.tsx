@@ -37,7 +37,8 @@ export default function PackageCard({ image, title, rating, desc, price, duratio
             <span className="text-gray-500"> / {duration}</span>
           </p>
 
-          <Button size="sm">PESAN SEKARANG →</Button>
+          {/* BUTTON → PAKET WISATA (DEFAULT md) */}
+          <Button href="/paket-wisata">PESAN SEKARANG →</Button>
         </div>
       </div>
     )
@@ -64,7 +65,8 @@ export default function PackageCard({ image, title, rating, desc, price, duratio
           <span className="text-gray-500"> / {duration}</span>
         </p>
 
-        <Button size="sm">PESAN SEKARANG →</Button>
+        {/* BUTTON → PAKET WISATA (DEFAULT md) */}
+        <Button href="/paket-wisata">PESAN SEKARANG →</Button>
       </div>
     </div>
   )

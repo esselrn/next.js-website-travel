@@ -26,7 +26,7 @@ export default function BlogCard({ title, category, date, description, image }: 
 
         <p className="mt-3 font-inter text-gray-600 text-sm line-clamp-3">{description}</p>
 
-        <a href="#" className="inline-flex items-center gap-2 mt-4 font-inter font-semibold text-[#FB8C00] hover:underline">
+        <a href="/pages/blog-article" className="inline-flex items-center gap-2 mt-4 font-inter font-semibold text-[#FB8C00] hover:underline">
           BACA SELENGKAPNYA <span>→</span>
         </a>
       </div>
