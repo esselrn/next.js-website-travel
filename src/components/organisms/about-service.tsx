@@ -1,5 +1,4 @@
 import Image from "next/image"
-import Button from "@/components/atoms/button"
 
 export default function AboutServiceSection() {
   return (
@@ -29,12 +28,6 @@ export default function AboutServiceSection() {
               mulai dari perencanaan perjalanan hingga Anda kembali
               dengan membawa kenangan tak terlupakan.
             </p>
-
-            <div className="mt-8">
-              <Button variant="primary">
-                BACA LEBIH LANJUT →
-              </Button>
-            </div>
           </div>
 
           {/* RIGHT IMAGE */}

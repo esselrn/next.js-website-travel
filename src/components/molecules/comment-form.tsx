@@ -12,7 +12,7 @@ export default function CommentForm() {
 
       {/* KOMENTAR */}
       <div className="mb-6">
-        <label className="block mb-2 text-sm font-medium">Komentar *</label>
+        <label className="block mb-2 text-sm font-medium text-[#0B2C4D]">Komentar *</label>
         <textarea
           className="w-full min-h-[140px] sm:min-h-[180px] p-4 border border-gray-300 rounded-lg shadow-sm
           focus:ring-2 focus:ring-[#FB8C00] outline-none"
@@ -21,18 +21,18 @@ export default function CommentForm() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
         <div>
-          <label className="block mb-2 text-sm font-medium">Nama *</label>
+          <label className="block mb-2 text-sm font-medium text-[#0B2C4D]">Nama *</label>
           <Input placeholder="Nama Anda" />
         </div>
 
         <div>
-          <label className="block mb-2 text-sm font-medium">Email *</label>
+          <label className="block mb-2 text-sm font-medium text-[#0B2C4D]">Email *</label>
           <Input placeholder="Email Anda" />
         </div>
       </div>
 
       <div className="mb-8">
-        <label className="block mb-2 text-sm font-medium">Website</label>
+        <label className="block mb-2 text-sm font-medium text-[#0B2C4D]">Website</label>
         <Input placeholder="Website (opsional)" />
       </div>
 

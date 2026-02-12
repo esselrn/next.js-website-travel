@@ -19,7 +19,7 @@ export default function DetailLayout({ children, sidebar }: DetailLayoutProps) {
           lg:w-[360px] 
           shrink-0 
           lg:sticky 
-          lg:top-[140px]
+          lg:top-[64px]
         "
         >
           {sidebar}
