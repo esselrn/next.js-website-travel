@@ -1,24 +1,40 @@
+import Link from 'next/link'
+import React from 'react'
+
 type ButtonProps = {
   children: React.ReactNode
+  size?: 'sm' | 'md' | 'lg'
+  variant?: 'primary' | 'outline'
   onClick?: () => void
-  variant?: "primary" | "secondary"
+  href?: string // ⬅️ TAMBAHAN
 }
 
-export default function Button({
-  children,
-  onClick,
-  variant = "primary",
-}: ButtonProps) {
-  const baseStyle =
-    "px-6 py-3 rounded-md font-inter text-sm flex items-center gap-2 transition"
+export default function Button({ children, size = 'md', variant = 'primary', onClick, href }: ButtonProps) {
+  const sizeClass = {
+    sm: 'px-4 py-2 text-sm',
+    md: 'px-6 py-3 text-sm',
+    lg: 'px-8 py-4 text-base'
+  }[size]
 
-  const variantStyle =
-    variant === "primary"
-      ? "bg-[#FB8C00] hover:bg-orange-600 text-white"
-      : "bg-gray-200 text-black"
+  const variantClass = {
+    primary: 'bg-orange-500 text-white hover:bg-orange-600',
+    outline: 'border border-orange-500 text-orange-500 hover:bg-orange-50'
+  }[variant]
 
+  const className = `inline-flex items-center justify-center rounded-md transition font-medium ${sizeClass} ${variantClass}`
+
+  // 👉 JIKA ADA HREF → JADI LINK (Next.js recommended)
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {children}
+      </Link>
+    )
+  }
+
+  // 👉 DEFAULT → BUTTON NORMAL
   return (
-    <button onClick={onClick} className={`${baseStyle} ${variantStyle}`}>
+    <button onClick={onClick} className={className}>
       {children}
     </button>
   )
