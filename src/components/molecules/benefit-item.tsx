@@ -1,4 +1,4 @@
-import Text from '@/components/atoms/text'
+import Text from '@/components/atoms/Text'
 
 export default function BenefitItem({ title, desc }: { title: string; desc: string }) {
   return (
