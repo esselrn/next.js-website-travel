@@ -15,20 +15,20 @@ export default function DetailDestinasiPage() {
       <PageHeaderSection />
 
       {/* FULL WIDTH GALLERY */}
-      <section className="max-w-[1200px] mx-auto px-6 mt-16">
+      <section className="max-w-[1200px] mx-auto px-6 mt-6 lg:mt-16">
         <GallerySection />
       </section>
 
       {/* CONTENT + SIDEBAR */}
       <DetailLayout
         sidebar={
-          <div className="space-y-6">
+          <div className="space-y-6 mt-4 lg:mt-0">
             <BookingSidebar />
             <ContactCard />
           </div>
         }
       >
-        <div>
+        <div className="space-y-10">
           <Summary />
           <IncludeExcludeSection />
           <Itinerary />

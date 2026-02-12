@@ -1,28 +1,29 @@
-import { ReactNode } from "react"
+import { ReactNode } from 'react'
 
 interface DetailLayoutProps {
   children: ReactNode
   sidebar: ReactNode
 }
 
-export default function DetailLayout({
-  children,
-  sidebar,
-}: DetailLayoutProps) {
+export default function DetailLayout({ children, sidebar }: DetailLayoutProps) {
   return (
-    <section className="w-full bg-white py-16">
-      <div className="max-w-[1200px] mx-auto px-6 flex gap-10 items-start">
-
+    <section className="w-full bg-white py-10 lg:py-16">
+      <div className="max-w-[1200px] mx-auto px-6 flex flex-col lg:flex-row gap-10 items-start">
         {/* LEFT CONTENT */}
-        <div className="flex-1 min-w-0">
-          {children}
-        </div>
+        <div className="flex-1 min-w-0">{children}</div>
 
         {/* RIGHT SIDEBAR */}
-        <aside className="w-[360px] shrink-0 sticky top-[140px]">
+        <aside
+          className="
+          w-full 
+          lg:w-[360px] 
+          shrink-0 
+          lg:sticky 
+          lg:top-[140px]
+        "
+        >
           {sidebar}
         </aside>
-
       </div>
     </section>
   )
