@@ -1,5 +1,5 @@
-import Input from '@/components/atoms/input'
-import Button from '@/components/atoms/button'
+import Input from '@/components/atoms/Input'
+import Button from '@/components/atoms/Button'
 
 export default function CommentForm() {
   return (

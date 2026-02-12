@@ -1,4 +1,4 @@
-import { SectionSubtitle, SectionTitle } from '@/components/atoms/text-styling'
+import { SectionSubtitle, SectionTitle } from '@/components/atoms/TextStyling'
 
 type HeroContentProps = {
   subtitle: string

@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import MetaInfo from '@/components/atoms/meta-info'
+import MetaInfo from '@/components/atoms/MetaInfo'
 import { User, CalendarDays, Folder } from 'lucide-react'
 
 export default function PageHeaderSection() {
