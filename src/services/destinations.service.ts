@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 
 export type Destination = {
   id: number
@@ -10,7 +10,13 @@ export type Destination = {
   is_featured: boolean
 }
 
+function getSupabaseClient() {
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+}
+
 export async function getDestinations() {
+  const supabase = getSupabaseClient()
+
   const { data, error } = await supabase.from('destinations').select('*').order('created_at', { ascending: true })
 
   if (error) {
