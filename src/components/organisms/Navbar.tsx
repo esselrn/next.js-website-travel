@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Logo from '@/components/atoms/Logo'
+import Logo from '@/components/atoms/logo'
 import NavLink from '@/components/molecules/nav-link'
 import DropdownMenu from '@/components/molecules/dropdown-menu'
 import LanguageSwitch from '@/components/molecules/language-switch'

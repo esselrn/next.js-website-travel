@@ -1,3 +1,5 @@
+'use client'
+
 import PageHeaderSection from '@/components/organisms/detail-page-header'
 import DestinationSection from '@/components/organisms/destination-section'
 import InformationBanner from '@/components/molecules/information-benner'
