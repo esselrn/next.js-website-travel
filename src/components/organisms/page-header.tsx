@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import Location from '@/components/atoms/Location'
+import Location from '@/components/atoms/location'
 
 export default function PageHeaderSection() {
   return (

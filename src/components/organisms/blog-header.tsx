@@ -1,4 +1,4 @@
-import Button from '@/components/atoms/Button'
+import Button from '@/components/atoms/button'
 
 export default function BlogHeader() {
   return (

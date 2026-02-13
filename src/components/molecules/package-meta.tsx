@@ -1,4 +1,4 @@
-import InfoItem from "@/components/atoms/InfoItem"
+import InfoItem from "@/components/atoms/info-item"
 import {
   ClockIcon,
   CarIcon,

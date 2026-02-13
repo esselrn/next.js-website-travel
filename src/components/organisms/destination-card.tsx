@@ -1,7 +1,7 @@
 import Image from 'next/image'
-import Rating from '@/components/atoms/Rating'
-import Price from '@/components/atoms/Price'
-import Button from '@/components/atoms/Button'
+import Rating from '@/components/atoms/rating'
+import Price from '@/components/atoms/price'
+import Button from '@/components/atoms/button'
 
 type DestinationCardProps = {
   image: string

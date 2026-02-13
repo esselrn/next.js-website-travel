@@ -1,6 +1,6 @@
 import Image from 'next/image'
-import Button from '@/components/atoms/Button'
-import PlayButton from '@/components/atoms/PlayButton'
+import Button from '@/components/atoms/button'
+import PlayButton from '@/components/atoms/play-button'
 
 export default function AdventureCTA() {
   return (

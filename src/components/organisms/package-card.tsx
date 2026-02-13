@@ -1,6 +1,6 @@
 import Image from 'next/image'
-import Rating from '@/components/atoms/Rating'
-import Button from '@/components/atoms/Button'
+import Rating from '@/components/atoms/rating'
+import Button from '@/components/atoms/button'
 
 type Props = {
   image: string

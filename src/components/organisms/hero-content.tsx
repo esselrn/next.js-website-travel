@@ -1,5 +1,5 @@
-import Button from '@/components/atoms/Button'
-import Text from '@/components/atoms/Text'
+import Button from '@/components/atoms/button'
+import Text from '@/components/atoms/text'
 
 export default function HeroContent() {
   return (

@@ -1,5 +1,5 @@
-import FooterTitle from "@/components/atoms/FooterTitle"
-import FooterLink from "@/components/atoms/FooterLink"
+import FooterTitle from "@/components/atoms/footer-title"
+import FooterLink from "@/components/atoms/footer-link"
 
 type FooterColumnProps = {
   title: string

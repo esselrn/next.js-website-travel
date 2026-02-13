@@ -1,6 +1,6 @@
-import Button from '@/components/atoms/Button'
-import Rating from '@/components/atoms/Rating'
-import Location from '@/components/atoms/Location'
+import Button from '@/components/atoms/button'
+import Rating from '@/components/atoms/rating'
+import Location from '@/components/atoms/location'
 import { PACKAGE_INFO } from '@/constants/package-info'
 
 export default function PackageInfo() {
