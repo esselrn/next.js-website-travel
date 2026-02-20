@@ -1,21 +1,52 @@
-import { createClient } from '@supabase/supabase-js'
-
-function getSupabaseClient() {
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-}
+import { supabase } from '@/lib/supabase'
 
 export async function getPackages() {
-  const supabase = getSupabaseClient()
-
   const { data, error } = await supabase
     .from('packages')
-    .select('id, title, image, rating, price, duration, desc')
-    .order('created_at', { ascending: true })
+    .select(
+      `
+      id,
+      slug,
+      title,
+      image,
+      rating,
+      price,
+      duration,
+      summary
+    `
+    )
+    .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Supabase packages error:', error)
+    console.error(error)
     throw error
   }
 
   return data ?? []
+}
+
+export async function getPackageBySlug(slug: string) {
+  const { data, error } = await supabase
+    .from('packages')
+    .select(
+      `
+      *,
+      package_itineraries (
+        day,
+        title,
+        description
+      ),
+      package_includes ( text ),
+      package_excludes ( text )
+    `
+    )
+    .eq('slug', slug)
+    .single()
+
+  if (error) {
+    console.error(error)
+    throw error
+  }
+
+  return data
 }
