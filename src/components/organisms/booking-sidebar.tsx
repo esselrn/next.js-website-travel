@@ -2,7 +2,7 @@
 'use client'
 
 import { useState } from 'react'
-import { createDestinationBooking } from '@/services/destinations.service'
+import { supabase } from '@/lib/supabase'
 
 type Props = {
   destinationId: string
@@ -36,12 +36,24 @@ export default function BookingSidebar({ destinationId, pricePerPerson }: Props)
   const handleSubmit = async () => {
     setSubmitting(true)
     try {
-      await createDestinationBooking({
-        destination_id: destinationId,
-        price_per_person: pricePerPerson,
-        ...form,
-        participants: Number(form.participants)
-      })
+      const total_price = pricePerPerson * Number(form.participants)
+
+      const { error } = await supabase.from('destination_bookings').insert([
+        {
+          destination_id: destinationId,
+          full_name: form.full_name,
+          phone: form.phone,
+          email: form.email,
+          visit_date: form.visit_date,
+          participants: Number(form.participants),
+          notes: form.notes,
+          total_price,
+          status: 'pending'
+        }
+      ])
+
+      if (error) throw error
+
       setSuccess(true)
       setForm({ full_name: '', phone: '', email: '', visit_date: '', participants: 1, notes: '' })
     } catch {
@@ -53,12 +65,9 @@ export default function BookingSidebar({ destinationId, pricePerPerson }: Props)
 
   return (
     <aside className="bg-white rounded-2xl shadow-xl overflow-hidden w-full">
-      {/* Header */}
       <div className="bg-[#0B2C4D] px-6 py-5 text-center">
         <h3 className="text-white text-lg font-semibold">Pesan Tur Ini</h3>
       </div>
-
-      {/* Form */}
       <div className="p-8 space-y-5">
         {success ? (
           <p className="text-green-600 text-sm text-center py-4">
@@ -78,7 +87,6 @@ export default function BookingSidebar({ destinationId, pricePerPerson }: Props)
                 className="w-full h-[54px] px-5 rounded-lg border border-gray-200 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
               />
             ))}
-
             <textarea
               name="notes"
               placeholder="Pesan Tambahan"
@@ -87,7 +95,6 @@ export default function BookingSidebar({ destinationId, pricePerPerson }: Props)
               rows={4}
               className="w-full px-5 py-4 rounded-lg border border-gray-200 text-sm text-gray-700 shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
             />
-
             <button
               onClick={handleSubmit}
               disabled={submitting}
