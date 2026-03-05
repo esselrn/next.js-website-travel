@@ -20,7 +20,7 @@ export default function PackageHeroSection({ paket }: Props) {
     <section className="mb-10">
       <div className="flex items-start justify-between gap-4 mb-2">
         <div>
-          <h1 className="text-3xl font-bold text-[#0B2C4D]">{paket.name}</h1>
+          <h1 className="text-xl md:text-3xl font-bold text-[#0B2C4D]">{paket.name}</h1>
           <div className="flex items-center gap-1 mt-1">
             <span className="text-sm font-semibold text-[#0B2C4D]">{rating.toFixed(1)}</span>
             <div className="flex">
@@ -35,13 +35,13 @@ export default function PackageHeroSection({ paket }: Props) {
                   return (
                     <svg key={i} className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
                       <defs>
-                        <linearGradient id="half">
+                        <linearGradient id="half2">
                           <stop offset="50%" stopColor="currentColor" />
                           <stop offset="50%" stopColor="#D1D5DB" />
                         </linearGradient>
                       </defs>
                       <path
-                        fill="url(#half)"
+                        fill="url(#half2)"
                         d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118L10 14.347l-3.35 2.438c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.664 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.285-3.957z"
                       />
                     </svg>
@@ -67,9 +67,9 @@ export default function PackageHeroSection({ paket }: Props) {
         </div>
 
         <div className="flex flex-col items-end gap-3 shrink-0">
-          <p className="text-2xl font-bold text-[#0B2C4D]">
+          <p className="text-lg md:text-2xl font-bold text-[#0B2C4D]">
             Rp. {Number(paket.price_per_person).toLocaleString('id-ID')}{' '}
-            <span className="text-base font-normal text-gray-500">/ Orang</span>
+            <span className="text-sm font-normal text-gray-500">/ Orang</span>
           </p>
           <button
             onClick={handleScroll}
@@ -128,7 +128,6 @@ export default function PackageHeroSection({ paket }: Props) {
           </div>
         )}
       </div>
-
       <div className="w-full h-px bg-gray-200 mt-8" />
     </section>
   )

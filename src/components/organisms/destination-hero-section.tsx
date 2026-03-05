@@ -19,7 +19,7 @@ export default function DestinationHeroSection({ destination }: Props) {
     <section className="mb-10">
       <div className="flex items-start justify-between gap-4 mb-2">
         <div>
-          <h1 className="text-3xl font-bold text-[#0B2C4D]">{destination.name}</h1>
+          <h1 className="text-xl md:text-3xl font-bold text-[#0B2C4D]">{destination.name}</h1>
           <div className="flex items-center gap-1 mt-1">
             <span className="text-sm font-semibold text-[#0B2C4D]">{rating.toFixed(1)}</span>
             <div className="flex">
@@ -66,9 +66,9 @@ export default function DestinationHeroSection({ destination }: Props) {
         </div>
 
         <div className="flex flex-col items-end gap-3 shrink-0">
-          <p className="text-2xl font-bold text-[#0B2C4D]">
+          <p className="text-lg md:text-2xl font-bold text-[#0B2C4D]">
             Rp. {Number(destination.price_per_person).toLocaleString('id-ID')}{' '}
-            <span className="text-base font-normal text-gray-500">/ Orang</span>
+            <span className="text-sm font-normal text-gray-500">/ Orang</span>
           </p>
           <button
             onClick={handleScroll}
