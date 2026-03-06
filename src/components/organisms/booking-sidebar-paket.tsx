@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { CheckCircle, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/contexts/auth-context'
+import { CheckCircle, AlertCircle, LogIn } from 'lucide-react'
 
 type Props = {
   packageId: string
@@ -18,6 +20,8 @@ const bookingFields = [
 ] as const
 
 export default function BookingSidebar({ packageId, pricePerPerson }: Props) {
+  const { user, profile } = useAuth()
+  const router = useRouter()
   const [form, setForm] = useState({ full_name: '', phone: '', email: '', travel_date: '', participants: 1, notes: '' })
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -65,7 +69,36 @@ export default function BookingSidebar({ packageId, pricePerPerson }: Props) {
         <h3 className="text-white text-lg font-semibold">Pesan Tur Ini</h3>
       </div>
       <div className="p-8 space-y-5">
-        {success ? (
+        {/* BELUM LOGIN */}
+        {!user ? (
+          <div className="flex flex-col items-center text-center py-6 gap-4">
+            <div className="w-16 h-16 rounded-full bg-orange-50 flex items-center justify-center">
+              <LogIn className="w-7 h-7 text-[#FB8C00]" />
+            </div>
+            <div>
+              <h4 className="text-base font-bold text-[#0B2C4D] mb-1">Login Diperlukan</h4>
+              <p className="text-sm text-gray-500 max-w-xs mx-auto">
+                Kamu harus login terlebih dahulu untuk melakukan pemesanan.
+              </p>
+            </div>
+            <div className="w-full space-y-2 pt-1">
+              <button
+                onClick={() => router.push(`/auth/login?redirect=${window.location.pathname}`)}
+                className="w-full h-[48px] bg-[#FB8C00] text-white font-semibold rounded-lg hover:bg-orange-600 transition text-sm"
+              >
+                Masuk Sekarang
+              </button>
+              <button
+                onClick={() => router.push('/auth/register')}
+                className="w-full h-[48px] border border-[#0B2C4D] text-[#0B2C4D] font-semibold rounded-lg hover:bg-gray-50 transition text-sm"
+              >
+                Daftar Gratis
+              </button>
+            </div>
+            <p className="text-xs text-gray-400">Sudah punya akun? Langsung masuk dan pesan.</p>
+          </div>
+        ) : success ? (
+          /* SUKSES */
           <div className="flex flex-col items-center justify-center text-center py-6 gap-4">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
               <CheckCircle className="w-8 h-8 text-green-500" />
@@ -73,7 +106,7 @@ export default function BookingSidebar({ packageId, pricePerPerson }: Props) {
             <div>
               <h4 className="text-lg font-bold text-[#0B2C4D] mb-1">Pemesanan Berhasil!</h4>
               <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                Terima kasih telah mempercayai NusaTrip. Tim kami akan segera menghubungi Anda untuk konfirmasi lebih lanjut.
+                Terima kasih {profile?.full_name}! Tim kami akan segera menghubungi Anda untuk konfirmasi lebih lanjut.
               </p>
             </div>
             <button onClick={() => setSuccess(false)} className="text-sm text-orange-500 hover:underline font-medium mt-1">
@@ -81,13 +114,25 @@ export default function BookingSidebar({ packageId, pricePerPerson }: Props) {
             </button>
           </div>
         ) : (
+          /* FORM */
           <>
+            {/* Info user yang sedang login */}
+            <div className="flex items-center gap-2.5 px-4 py-3 bg-blue-50 rounded-lg border border-blue-100">
+              <div className="w-8 h-8 rounded-full bg-[#FB8C00] flex items-center justify-center text-xs font-bold text-white shrink-0">
+                {(profile?.full_name || profile?.email || 'U')[0].toUpperCase()}
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[#0B2C4D]">{profile?.full_name || 'User'}</p>
+                <p className="text-[11px] text-gray-400">{profile?.email}</p>
+              </div>
+            </div>
+
             {error && (
               <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {error}
+                <AlertCircle className="w-4 h-4 shrink-0" /> {error}
               </div>
             )}
+
             {bookingFields.map(({ name, label, type }) => (
               <input
                 key={name}
@@ -100,6 +145,7 @@ export default function BookingSidebar({ packageId, pricePerPerson }: Props) {
                 className="w-full h-[54px] px-5 rounded-lg border border-gray-200 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 bg-gray-50"
               />
             ))}
+
             <textarea
               name="notes"
               placeholder="Pesan Tambahan (opsional)"
@@ -108,6 +154,7 @@ export default function BookingSidebar({ packageId, pricePerPerson }: Props) {
               rows={4}
               className="w-full px-5 py-4 rounded-lg border border-gray-200 text-sm text-gray-700 shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 bg-gray-50"
             />
+
             <button
               onClick={handleSubmit}
               disabled={submitting}
