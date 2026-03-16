@@ -1,7 +1,6 @@
-// src/types/packages.ts
-
 export interface Package {
   id: string
+  slug?: string
   name: string
   location: string
   full_location: string

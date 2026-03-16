@@ -25,41 +25,39 @@ function splitContent(html: string) {
   const headings = [...html.matchAll(/<h3/g)]
   if (headings.length < 2) return { before: html, after: '' }
   const splitIndex = headings[1].index!
-  return {
-    before: html.slice(0, splitIndex),
-    after: html.slice(splitIndex)
-  }
+  return { before: html.slice(0, splitIndex), after: html.slice(splitIndex) }
 }
 
 export default function BlogDetailPage() {
-  const { id } = useParams()
+  const { slug } = useParams()
+  const slugStr = Array.isArray(slug) ? slug[0] : slug
   const [blog, setBlog] = useState<Blog | null>(null)
 
   useEffect(() => {
-    if (!id) return
-    supabase
-      .from('blogs')
-      .select('*')
-      .eq('id', id)
-      .single()
-      .then(({ data }) => {
-        if (data) setBlog(data)
-      })
-  }, [id])
+    if (!slugStr) return
+    const fetch = async () => {
+      // Coba slug dulu, fallback ke id
+      let { data } = await supabase.from('blogs').select('*').eq('slug', slugStr).single()
+      if (!data) {
+        const { data: fallback } = await supabase.from('blogs').select('*').eq('id', slugStr).single()
+        data = fallback
+      }
+      if (data) setBlog(data)
+    }
+    fetch()
+  }, [slugStr])
 
-  if (!blog) {
+  if (!blog)
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <p className="text-gray-500">Memuat artikel...</p>
       </div>
     )
-  }
 
   const { before, after } = splitContent(blog.content || '')
 
   return (
     <>
-      {/* HEADER */}
       <section className="relative w-full h-[260px] md:h-[320px]">
         <Image src={blog.hero_image || blog.image} alt={blog.title} fill priority className="object-cover" />
         <div className="absolute inset-0 bg-black/60" />
@@ -77,27 +75,23 @@ export default function BlogDetailPage() {
         </div>
       </section>
 
-      {/* HERO IMAGE */}
       <section className="w-full px-4 sm:px-6 mt-10 mb-10">
         <div className="relative w-full max-w-[1316px] mx-auto h-[240px] sm:h-[420px] lg:h-[520px]">
           <Image src={blog.hero_image || blog.image} alt={blog.title} fill priority className="object-cover rounded-xl" />
         </div>
       </section>
 
-      {/* CONTENT */}
       <section className="px-4 sm:px-6 lg:px-[173px] mb-16">
         <div className="w-full max-w-[970px] mx-auto">
-          {/* KONTEN ATAS */}
           <div
             className="
-              [&_h2]:font-montserrat [&_h2]:text-[#0B2C4D] [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mb-4 [&_h2]:mt-0
-              [&_h3]:font-montserrat [&_h3]:text-[#0B2C4D] [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:border-b [&_h3]:border-blue-100 [&_h3]:pb-2
-              [&_p]:text-gray-700 [&_p]:leading-relaxed [&_p]:mb-4 [&_p]:text-[15px]
-            "
+            [&_h2]:font-montserrat [&_h2]:text-[#0B2C4D] [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mb-4 [&_h2]:mt-0
+            [&_h3]:font-montserrat [&_h3]:text-[#0B2C4D] [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:border-b [&_h3]:border-blue-100 [&_h3]:pb-2
+            [&_p]:text-gray-700 [&_p]:leading-relaxed [&_p]:mb-4 [&_p]:text-[15px]
+          "
             dangerouslySetInnerHTML={{ __html: before }}
           />
 
-          {/* GALLERY DI TENGAH */}
           {blog.gallery_images?.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 my-10">
               {blog.gallery_images.map((img, i) => (
@@ -113,19 +107,17 @@ export default function BlogDetailPage() {
             </div>
           )}
 
-          {/* KONTEN BAWAH */}
           {after && (
             <div
               className="
-                [&_h2]:font-montserrat [&_h2]:text-[#0B2C4D] [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mb-4 [&_h2]:mt-8
-                [&_h3]:font-montserrat [&_h3]:text-[#0B2C4D] [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:border-b [&_h3]:border-blue-100 [&_h3]:pb-2
-                [&_p]:text-gray-700 [&_p]:leading-relaxed [&_p]:mb-4 [&_p]:text-[15px]
-              "
+              [&_h2]:font-montserrat [&_h2]:text-[#0B2C4D] [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mb-4 [&_h2]:mt-8
+              [&_h3]:font-montserrat [&_h3]:text-[#0B2C4D] [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:border-b [&_h3]:border-blue-100 [&_h3]:pb-2
+              [&_p]:text-gray-700 [&_p]:leading-relaxed [&_p]:mb-4 [&_p]:text-[15px]
+            "
               dangerouslySetInnerHTML={{ __html: after }}
             />
           )}
 
-          {/* COMMENT FORM */}
           <div className="mt-16">
             <CommentForm />
           </div>

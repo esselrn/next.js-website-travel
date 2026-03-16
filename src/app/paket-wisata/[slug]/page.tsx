@@ -12,17 +12,23 @@ import BookingSidebar from '@/components/organisms/booking-sidebar-paket'
 import ContactCard from '@/components/molecules/contact-card'
 import NewsletterSection from '@/components/organisms/newsletter-section'
 
-export default async function PaketDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const { data: paket } = await supabase.from('packages').select('*').eq('id', id).single()
+export default async function PaketDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
 
-  if (!paket) return <div className="text-center py-20">Data tidak ditemukan</div>
+  // Coba cari by slug dulu, fallback ke id (backward compat)
+  let { data: paket } = await supabase.from('packages').select('*').eq('slug', slug).single()
+  if (!paket) {
+    const { data: fallback } = await supabase.from('packages').select('*').eq('id', slug).single()
+    paket = fallback
+  }
+
+  if (!paket) return <div className="text-center py-20 text-gray-500">Paket tidak ditemukan</div>
 
   const [{ data: images }, { data: includes }, { data: excludes }, { data: itineraries }] = await Promise.all([
-    supabase.from('package_images').select('*').eq('package_id', id).order('sort_order'),
-    supabase.from('package_includes').select('*').eq('package_id', id).eq('is_included', true).order('sort_order'),
-    supabase.from('package_includes').select('*').eq('package_id', id).eq('is_included', false).order('sort_order'),
-    supabase.from('package_itineraries').select('*').eq('package_id', id).order('day')
+    supabase.from('package_images').select('*').eq('package_id', paket.id).order('sort_order'),
+    supabase.from('package_includes').select('*').eq('package_id', paket.id).eq('is_included', true).order('sort_order'),
+    supabase.from('package_includes').select('*').eq('package_id', paket.id).eq('is_included', false).order('sort_order'),
+    supabase.from('package_itineraries').select('*').eq('package_id', paket.id).order('day')
   ])
 
   const sidebar = (

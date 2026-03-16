@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 type BlogCardProps = {
   id: string
+  slug?: string
   title: string
   category: string
   date: string
@@ -10,7 +11,9 @@ type BlogCardProps = {
   image: string
 }
 
-export default function BlogCard({ id, title, category, date, description, image }: BlogCardProps) {
+export default function BlogCard({ id, slug, title, category, date, description, image }: BlogCardProps) {
+  const href = `/pages/blog-article/${slug ?? id}`
+
   return (
     <div className="group">
       <div className="relative w-full h-[220px] rounded-2xl overflow-hidden">
@@ -24,7 +27,7 @@ export default function BlogCard({ id, title, category, date, description, image
         <p className="mt-1 text-sm text-gray-500 font-inter">{date}</p>
         <p className="mt-3 font-inter text-gray-600 text-sm line-clamp-3">{description}</p>
         <Link
-          href={`/pages/blog-article/${id}`}
+          href={href}
           className="inline-flex items-center gap-2 mt-4 font-inter font-semibold text-[#FB8C00] hover:underline"
         >
           BACA SELENGKAPNYA <span>→</span>

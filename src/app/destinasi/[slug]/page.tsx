@@ -16,8 +16,8 @@ import Itinerary from '@/components/organisms/itinerary'
 import LocationMap from '@/components/organisms/lokasi-wisata'
 
 export default function DetailDestinasiPage() {
-  const { id } = useParams()
-  const destinationId = Array.isArray(id) ? id[0] : id
+  const { slug } = useParams()
+  const slugStr = Array.isArray(slug) ? slug[0] : slug
 
   const [destination, setDestination] = useState<Destination | null>(null)
   const [images, setImages] = useState<DestinationImage[]>([])
@@ -27,33 +27,47 @@ export default function DetailDestinasiPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!destinationId) return
-    Promise.all([
-      supabase.from('destinations').select('*').eq('id', destinationId).single(),
-      supabase.from('destination_images').select('*').eq('destination_id', destinationId).order('sort_order'),
-      supabase
-        .from('destination_includes')
-        .select('*')
-        .eq('destination_id', destinationId)
-        .eq('is_included', true)
-        .order('sort_order'),
-      supabase
-        .from('destination_includes')
-        .select('*')
-        .eq('destination_id', destinationId)
-        .eq('is_included', false)
-        .order('sort_order'),
-      supabase.from('destination_itinerary').select('*').eq('destination_id', destinationId).order('sort_order')
-    ])
-      .then(([{ data: dest }, { data: imgs }, { data: inc }, { data: exc }, { data: itin }]) => {
-        setDestination(dest)
-        setImages(imgs ?? [])
-        setIncludes(inc ?? [])
-        setExcludes(exc ?? [])
-        setItinerary(itin ?? [])
-      })
-      .finally(() => setLoading(false))
-  }, [destinationId])
+    if (!slugStr) return
+
+    const fetchData = async () => {
+      // Coba slug dulu, fallback ke id
+      let { data: dest } = await supabase.from('destinations').select('*').eq('slug', slugStr).single()
+      if (!dest) {
+        const { data: fallback } = await supabase.from('destinations').select('*').eq('id', slugStr).single()
+        dest = fallback
+      }
+      if (!dest) {
+        setLoading(false)
+        return
+      }
+
+      const [{ data: imgs }, { data: inc }, { data: exc }, { data: itin }] = await Promise.all([
+        supabase.from('destination_images').select('*').eq('destination_id', dest.id).order('sort_order'),
+        supabase
+          .from('destination_includes')
+          .select('*')
+          .eq('destination_id', dest.id)
+          .eq('is_included', true)
+          .order('sort_order'),
+        supabase
+          .from('destination_includes')
+          .select('*')
+          .eq('destination_id', dest.id)
+          .eq('is_included', false)
+          .order('sort_order'),
+        supabase.from('destination_itinerary').select('*').eq('destination_id', dest.id).order('sort_order')
+      ])
+
+      setDestination(dest)
+      setImages(imgs ?? [])
+      setIncludes(inc ?? [])
+      setExcludes(exc ?? [])
+      setItinerary(itin ?? [])
+      setLoading(false)
+    }
+
+    fetchData()
+  }, [slugStr])
 
   if (loading)
     return (

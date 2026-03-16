@@ -1,7 +1,6 @@
-// src/types/destinations.ts
-
 export interface Destination {
   id: string
+  slug?: string
   name: string
   location: string
   full_location: string

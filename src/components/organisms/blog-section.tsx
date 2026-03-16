@@ -7,6 +7,7 @@ import BlogCard from '@/components/organisms/blog-card'
 
 type Blog = {
   id: string
+  slug?: string
   title: string
   category: string
   date: string
@@ -20,7 +21,7 @@ export default function BlogSection() {
   useEffect(() => {
     supabase
       .from('blogs')
-      .select('id, title, category, date, description, image')
+      .select('id, slug, title, category, date, description, image')
       .order('date', { ascending: false })
       .limit(3)
       .then(({ data }) => {

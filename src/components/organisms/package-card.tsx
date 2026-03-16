@@ -9,6 +9,7 @@ type PackageCardProps = Package & {
 
 export default function PackageCard({
   id,
+  slug,
   thumbnail_url,
   name,
   rating,
@@ -17,6 +18,8 @@ export default function PackageCard({
   duration_day,
   variant = 'page'
 }: PackageCardProps) {
+  const href = `/paket-wisata/${slug ?? id}`
+
   if (variant === 'home') {
     return (
       <div className="grid md:grid-cols-2 gap-10 items-center">
@@ -31,9 +34,7 @@ export default function PackageCard({
             <span className="font-semibold">Rp {Number(price_per_person).toLocaleString('id-ID')}</span>
             {duration_day && <span className="text-gray-500"> / {duration_day} hari</span>}
           </p>
-          <Button href={`/paket-wisata/${id}`}>
-            PESAN SEKARANG →
-          </Button>
+          <Button href={href}>PESAN SEKARANG →</Button>
         </div>
       </div>
     )
@@ -55,7 +56,7 @@ export default function PackageCard({
               <span className="text-gray-500 text-xs font-normal">/ Orang</span>
             </p>
           </div>
-          <Button href={`/paket-wisata/${id}`}>PESAN SEKARANG →</Button>
+          <Button href={href}>PESAN SEKARANG →</Button>
         </div>
       </div>
     </div>

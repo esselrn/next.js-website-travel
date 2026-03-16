@@ -7,6 +7,7 @@ import BlogCard from '@/components/organisms/blog-card'
 
 type Blog = {
   id: string
+  slug?: string
   title: string
   category: string
   date: string
@@ -25,7 +26,7 @@ export default function BlogArticlePage() {
   useEffect(() => {
     supabase
       .from('blogs')
-      .select('id, title, category, date, description, image', { count: 'exact' })
+      .select('id, slug, title, category, date, description, image', { count: 'exact' })
       .order('date', { ascending: false })
       .then(({ data, count }) => {
         if (data) setBlogs(data)
@@ -33,13 +34,8 @@ export default function BlogArticlePage() {
       })
   }, [])
 
-  const handleLoadMore = () => {
-    setVisible((prev) => prev + LOAD_MORE_COUNT)
-  }
-
   return (
     <>
-      {/* HEADER */}
       <section className="relative w-full h-[280px] md:h-[340px]">
         <Image src="/assets/bali01.jpg" alt="Blog" fill priority className="object-cover" />
         <div className="absolute inset-0 bg-[#0B2C4D]/70" />
@@ -49,7 +45,6 @@ export default function BlogArticlePage() {
         </div>
       </section>
 
-      {/* BLOG GRID */}
       <section className="py-20">
         <div className="max-w-[1440px] mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -57,12 +52,10 @@ export default function BlogArticlePage() {
               <BlogCard key={blog.id} {...blog} />
             ))}
           </div>
-
-          {/* LIHAT SEMUA */}
           {visible < total && (
             <div className="flex justify-center mt-12">
               <button
-                onClick={handleLoadMore}
+                onClick={() => setVisible((v) => v + LOAD_MORE_COUNT)}
                 className="inline-flex items-center gap-2 bg-[#FB8C00] hover:bg-orange-600 text-white font-semibold font-inter px-8 py-3 rounded-lg transition"
               >
                 LIHAT SEMUA <span>→</span>

@@ -5,25 +5,35 @@ import { useState } from 'react'
 
 type DropdownItem = { href: string; label: string; onClick?: never } | { href?: never; label: string; onClick: () => void }
 
-export default function DropdownMenu({ label, items }: { label: string; items: DropdownItem[] }) {
+export default function DropdownMenu({
+  label,
+  items,
+  scrolled
+}: {
+  label: string
+  items: DropdownItem[]
+  scrolled?: boolean
+}) {
   const [open, setOpen] = useState(false)
 
   return (
     <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      {/* Trigger */}
-      <button className={`flex items-center gap-1 px-3 py-2 transition ${open ? 'text-orange-500' : 'text-white'}`}>
+      <button
+        className={`flex items-center gap-1 px-3 py-2 transition ${
+          open ? 'text-orange-500' : scrolled ? 'text-[#0B2C4D]' : 'text-white'
+        }`}
+      >
         {label}
         <span className="text-xs">▾</span>
       </button>
 
-      {/* Dropdown */}
       <div
         className={`
-          absolute top-full left-0 mt-2 min-w-[180px]
-          rounded-lg bg-white shadow-lg
-          transition-all duration-200
-          ${open ? 'opacity-100 visible' : 'opacity-0 invisible'}
-        `}
+        absolute top-full left-0 mt-2 min-w-[180px]
+        rounded-lg bg-white shadow-lg
+        transition-all duration-200
+        ${open ? 'opacity-100 visible' : 'opacity-0 invisible'}
+      `}
       >
         {items.map((item, i) =>
           item.onClick ? (
@@ -33,10 +43,7 @@ export default function DropdownMenu({ label, items }: { label: string; items: D
                 item.onClick()
                 setOpen(false)
               }}
-              className="
-                w-full text-left block px-4 py-2 text-sm text-slate-700
-                transition hover:text-orange-500
-              "
+              className="w-full text-left block px-4 py-2 text-sm text-slate-700 transition hover:text-orange-500"
             >
               {item.label}
             </button>
@@ -44,10 +51,7 @@ export default function DropdownMenu({ label, items }: { label: string; items: D
             <Link
               key={i}
               href={item.href}
-              className="
-                block px-4 py-2 text-sm text-slate-700
-                transition hover:text-orange-500
-              "
+              className="block px-4 py-2 text-sm text-slate-700 transition hover:text-orange-500"
             >
               {item.label}
             </Link>

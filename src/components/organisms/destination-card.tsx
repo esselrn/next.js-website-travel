@@ -9,6 +9,7 @@ type DestinationCardProps = Destination & {
 
 export default function DestinationCard({
   id,
+  slug,
   thumbnail_url,
   name,
   rating,
@@ -16,6 +17,8 @@ export default function DestinationCard({
   price_per_person,
   small = false
 }: DestinationCardProps) {
+  const href = `/destinasi/${slug ?? id}`
+
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition h-full flex flex-col">
       <div className={`relative w-full ${small ? 'h-[180px]' : 'h-[260px]'}`}>
@@ -30,7 +33,7 @@ export default function DestinationCard({
             Rp {Number(price_per_person).toLocaleString('id-ID')}{' '}
             <span className="text-gray-500 text-xs font-normal">/ Orang</span>
           </p>
-          <Button href={`/destinasi/${id}`}>PESAN SEKARANG →</Button>
+          <Button href={href}>PESAN SEKARANG →</Button>
         </div>
       </div>
     </div>
