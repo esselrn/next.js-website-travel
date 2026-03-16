@@ -1,19 +1,14 @@
 import Link from 'next/link'
 
-export type NavLinkProps = {
+type NavLinkProps = {
   href: string
   label: string
   onClick?: () => void
-  scrolled?: boolean
 }
 
-export default function NavLink({ href, label, onClick, scrolled }: NavLinkProps) {
+export default function NavLink({ href, label, onClick }: NavLinkProps) {
   return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={`hover:text-orange-400 transition ${scrolled ? 'text-[#0B2C4D]' : 'text-white'}`}
-    >
+    <Link href={href} onClick={onClick} className="hover:text-orange-400 transition px-3 py-2">
       {label}
     </Link>
   )

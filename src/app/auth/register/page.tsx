@@ -48,7 +48,7 @@ export default function RegisterPage() {
       <div className="relative z-10 w-full max-w-[420px] mx-4" style={{ animation: 'fadeUp 0.5s ease forwards' }}>
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <Image src="/assets/logonb.png" alt="NusaTrip" width={52} height={52} className="mb-3" />
+          <Image src="/assets/logb.png" alt="NusaTrip" width={32} height={32} className="mb-3" />
           <span className="font-montserrat font-bold text-white text-xl tracking-widest">NUSA TRIP</span>
           <div className="w-12 h-[2px] bg-[#FB8C00] rounded-full mt-3" />
         </div>

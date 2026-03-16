@@ -1,3 +1,4 @@
+// FooterSection.tsx
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -41,13 +42,25 @@ function FooterColumn({ title, links }: Column) {
   )
 }
 
+const gradientTextStyle = {
+  background: 'linear-gradient(180deg, #FFD700 0%, #FF8C00 60%, #FF6000 100%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text'
+}
+
 export default function FooterSection() {
   return (
     <footer className="bg-[#0B2C4D] text-white w-full">
       <div className="max-w-[1440px] mx-auto px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div>
-            <Image src="/assets/logonb.png" alt="NusaTrip Logo" width={214} height={64} className="mb-4" />
+            <div className="flex items-center gap-2 mb-4">
+              <Image src="/assets/logo.png" alt="NusaTrip Logo" width={150} height={64} />
+              <span className="font-montserrat font-bold text-xl tracking-widest" style={gradientTextStyle}>
+                NUSA TRIP
+              </span>
+            </div>
             <p className="font-inter text-sm text-white/80 leading-relaxed">
               NusaTrip adalah platform perjalanan yang menghadirkan destinasi wisata terbaik di Indonesia dengan pengalaman
               liburan yang aman, nyaman, dan berkesan.

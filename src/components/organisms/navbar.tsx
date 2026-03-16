@@ -17,7 +17,7 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [bookingCount, setBookingCount] = useState(0)
-  const [scrolled, setScrolled] = useState(false)
+
   const userMenuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { profile, user } = useAuth()
@@ -28,13 +28,6 @@ export default function Navbar() {
     setActive(null)
   }
 
-  // Detect scroll
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false)
@@ -43,7 +36,6 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  // Fetch booking count (hanya user biasa)
   useEffect(() => {
     if (!user || profile?.role === 'admin') return
     const fetchCount = async () => {
@@ -90,33 +82,19 @@ export default function Navbar() {
   const initials = (profile?.full_name || profile?.email || 'U')[0].toUpperCase()
   const displayName = profile?.full_name || profile?.email?.split('@')[0] || 'User'
 
-  // Warna teks & elemen berubah sesuai scroll
-  const isWhite = scrolled || open
-  const textColor = isWhite ? 'text-[#0B2C4D]' : 'text-white'
-  const textMuted = isWhite ? 'text-[#0B2C4D]/70' : 'text-white/80'
-  const hoverBg = isWhite ? 'hover:bg-[#0B2C4D]/8' : 'hover:bg-white/10'
-  const borderColor = isWhite ? 'border-[#0B2C4D]/15' : 'border-white/15'
-
   return (
     <>
       <LogoutToast show={showToast} name={profile?.full_name} />
-      <header
-        className={`fixed top-0 left-0 w-full z-30 transition-all duration-300 ${
-          isWhite
-            ? 'bg-white shadow-md border-b border-gray-100'
-            : 'bg-[#0B2C4D]/90 backdrop-blur-md border-b border-white/5'
-        }`}
-      >
-        <div className="max-w-[1440px] mx-auto h-[64px] flex items-center justify-between px-6">
+      <header className="fixed top-0 left-0 w-full z-30 bg-[#0B2C4D]/90 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-[1440px] mx-auto h-[64px] flex items-center justify-between px-6 text-white">
           <Logo />
 
           {/* DESKTOP NAV */}
-          <nav className={`hidden md:flex items-center gap-2 font-inter text-sm ${textColor}`}>
-            <NavLink href="/" label="Beranda" scrolled={scrolled} />
-            <NavLink href="/about" label="Tentang Kami" scrolled={scrolled} />
+          <nav className="hidden md:flex items-center gap-2 font-inter text-sm">
+            <NavLink href="/" label="Beranda" />
+            <NavLink href="/about" label="Tentang Kami" />
             <DropdownMenu
               label="Paket Wisata"
-              scrolled={scrolled}
               items={[
                 { href: '/paket-wisata', label: 'Paket Wisata' },
                 { label: 'Detail Paket Wisata', onClick: goToFirstPackage }
@@ -124,45 +102,38 @@ export default function Navbar() {
             />
             <DropdownMenu
               label="Destinasi"
-              scrolled={scrolled}
               items={[
                 { href: '/destinasi', label: 'Destinasi' },
                 { label: 'Detail Destinasi', onClick: goToFirstDestination }
               ]}
             />
-            <DropdownMenu
-              label="Pages"
-              scrolled={scrolled}
-              items={[{ href: '/pages/blog-article', label: 'Blog & Article' }]}
-            />
-            <NavLink href="/kontak" label="Kontak" scrolled={scrolled} />
+            <DropdownMenu label="Pages" items={[{ href: '/pages/blog-article', label: 'Blog & Article' }]} />
+            <NavLink href="/kontak" label="Kontak" />
 
             {/* AUTH */}
-            <div className={`ml-4 pl-4 border-l ${borderColor}`}>
+            <div className="ml-4 pl-4 border-l border-white/15">
               {user && profile ? (
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={() => setUserMenuOpen((o) => !o)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition ${
-                      isWhite ? 'bg-[#0B2C4D]/8 hover:bg-[#0B2C4D]/15' : 'bg-white/10 hover:bg-white/20'
-                    }`}
+                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition"
                   >
                     <div className="relative">
-                      <div className="w-7 h-7 rounded-full bg-[#FB8C00] flex items-center justify-center text-xs font-bold text-white shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-[#FB8C00] flex items-center justify-center text-xs font-bold shrink-0">
                         {initials}
                       </div>
                       {bookingCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-white flex items-center justify-center">
+                        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-400 rounded-full border border-[#0B2C4D] flex items-center justify-center">
                           <span className="text-[8px] font-bold text-white leading-none">
                             {bookingCount > 9 ? '9+' : bookingCount}
                           </span>
                         </span>
                       )}
                     </div>
-                    <span className={`max-w-[100px] truncate text-sm font-medium ${textColor}`}>{displayName}</span>
+                    <span className="max-w-[100px] truncate text-sm font-medium">{displayName}</span>
                     <ChevronDown
                       size={13}
-                      className={`transition-transform duration-200 ${textColor} ${userMenuOpen ? 'rotate-180' : ''}`}
+                      className={`transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
 
@@ -223,7 +194,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-2">
                   <Link
                     href="/auth/login"
-                    className={`text-sm font-medium px-4 py-1.5 rounded-full transition ${textMuted} ${hoverBg} hover:${textColor}`}
+                    className="text-white/80 hover:text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-white/10 transition"
                   >
                     Masuk
                   </Link>
@@ -241,16 +212,14 @@ export default function Navbar() {
           {/* BURGER */}
           <button
             onClick={() => setOpen(!open)}
-            className={`md:hidden flex flex-col justify-center items-center w-9 h-9 rounded-lg transition gap-[5px] ${hoverBg}`}
+            className="md:hidden flex flex-col justify-center items-center w-9 h-9 rounded-lg hover:bg-white/10 transition gap-[5px]"
           >
             <span
-              className={`h-[2px] w-5 rounded-full transition-all duration-300 ${isWhite ? 'bg-[#0B2C4D]' : 'bg-white'} ${open ? 'rotate-45 translate-y-[7px]' : ''}`}
+              className={`h-[2px] w-5 bg-white rounded-full transition-all duration-300 ${open ? 'rotate-45 translate-y-[7px]' : ''}`}
             />
+            <span className={`h-[2px] w-5 bg-white rounded-full transition-all duration-300 ${open ? 'opacity-0' : ''}`} />
             <span
-              className={`h-[2px] w-5 rounded-full transition-all duration-300 ${isWhite ? 'bg-[#0B2C4D]' : 'bg-white'} ${open ? 'opacity-0' : ''}`}
-            />
-            <span
-              className={`h-[2px] w-5 rounded-full transition-all duration-300 ${isWhite ? 'bg-[#0B2C4D]' : 'bg-white'} ${open ? '-rotate-45 -translate-y-[7px]' : ''}`}
+              className={`h-[2px] w-5 bg-white rounded-full transition-all duration-300 ${open ? '-rotate-45 -translate-y-[7px]' : ''}`}
             />
           </button>
         </div>
@@ -268,7 +237,7 @@ export default function Navbar() {
             {user && profile && (
               <div className="flex items-center gap-3 px-4 py-4 mb-3 bg-white/5 rounded-2xl border border-white/10">
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-[#FB8C00] flex items-center justify-center font-bold text-sm text-white shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-[#FB8C00] flex items-center justify-center font-bold text-sm shrink-0">
                     {initials}
                   </div>
                   {bookingCount > 0 && (
@@ -299,7 +268,6 @@ export default function Navbar() {
               </Link>
             ))}
 
-            {/* Paket Wisata */}
             <div>
               <button
                 onClick={() => toggle('paket')}
@@ -332,7 +300,6 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Destinasi */}
             <div>
               <button
                 onClick={() => toggle('dest')}
@@ -365,7 +332,6 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Pages */}
             <div>
               <button
                 onClick={() => toggle('pages')}
@@ -389,7 +355,6 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* AUTH mobile */}
             <div className="pt-4 mt-2 border-t border-white/10 space-y-2">
               {user && profile ? (
                 <>

@@ -5,35 +5,17 @@ import { useState } from 'react'
 
 type DropdownItem = { href: string; label: string; onClick?: never } | { href?: never; label: string; onClick: () => void }
 
-export default function DropdownMenu({
-  label,
-  items,
-  scrolled
-}: {
-  label: string
-  items: DropdownItem[]
-  scrolled?: boolean
-}) {
+export default function DropdownMenu({ label, items }: { label: string; items: DropdownItem[] }) {
   const [open, setOpen] = useState(false)
 
   return (
     <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button
-        className={`flex items-center gap-1 px-3 py-2 transition ${
-          open ? 'text-orange-500' : scrolled ? 'text-[#0B2C4D]' : 'text-white'
-        }`}
-      >
+      <button className={`flex items-center gap-1 px-3 py-2 transition ${open ? 'text-orange-500' : 'text-white'}`}>
         {label}
         <span className="text-xs">▾</span>
       </button>
-
       <div
-        className={`
-        absolute top-full left-0 mt-2 min-w-[180px]
-        rounded-lg bg-white shadow-lg
-        transition-all duration-200
-        ${open ? 'opacity-100 visible' : 'opacity-0 invisible'}
-      `}
+        className={`absolute top-full left-0 mt-2 min-w-[180px] rounded-lg bg-white shadow-lg transition-all duration-200 ${open ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
       >
         {items.map((item, i) =>
           item.onClick ? (
