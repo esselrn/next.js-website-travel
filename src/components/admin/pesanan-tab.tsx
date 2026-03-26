@@ -1,36 +1,85 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import Image from 'next/image'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Search, Filter, Eye, Trash2, RefreshCw, CheckCircle, XCircle, Clock, Package, MapPin } from 'lucide-react'
-import AdminModal from './admin-modal'
+import {
+  RefreshCw,
+  Eye,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Package,
+  MapPin,
+  CreditCard,
+  PartyPopper,
+  Ban,
+  Calendar,
+  Users
+} from 'lucide-react'
+import Image from 'next/image'
+import PesananDetailModal from '@/components/admin/pesanan-detail-modal'
 
 type Booking = Record<string, unknown>
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
-  pending: { label: 'Menunggu', color: '#D97706', bg: '#FEF3C7', icon: Clock },
-  confirmed: { label: 'Dikonfirmasi', color: '#059669', bg: '#D1FAE5', icon: CheckCircle },
-  cancelled: { label: 'Dibatalkan', color: '#DC2626', bg: '#FEE2E2', icon: XCircle },
-  done: { label: 'Selesai', color: '#2563EB', bg: '#DBEAFE', icon: CheckCircle }
-}
-
-const BANK_INFO = [
-  { bank: 'BCA', no: '1234567890', atas: 'PT NusaTrip Indonesia' },
-  { bank: 'Mandiri', no: '9876543210', atas: 'PT NusaTrip Indonesia' },
-  { bank: 'BRI', no: '1122334455', atas: 'PT NusaTrip Indonesia' }
+const STATUS_GROUPS = [
+  {
+    key: 'pending',
+    label: 'Menunggu Konfirmasi',
+    icon: Clock,
+    color: 'text-yellow-600',
+    bg: 'bg-yellow-50',
+    border: 'border-yellow-200',
+    dot: 'bg-yellow-400'
+  },
+  {
+    key: 'confirmed',
+    label: 'Dikonfirmasi',
+    icon: CheckCircle,
+    color: 'text-blue-600',
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    dot: 'bg-blue-400'
+  },
+  {
+    key: 'paid',
+    label: 'Sudah Dibayar',
+    icon: CreditCard,
+    color: 'text-green-600',
+    bg: 'bg-green-50',
+    border: 'border-green-200',
+    dot: 'bg-green-400'
+  },
+  {
+    key: 'done',
+    label: 'Selesai / Berangkat',
+    icon: PartyPopper,
+    color: 'text-purple-600',
+    bg: 'bg-purple-50',
+    border: 'border-purple-200',
+    dot: 'bg-purple-400'
+  },
+  {
+    key: 'cancelled',
+    label: 'Dibatalkan',
+    icon: Ban,
+    color: 'text-red-500',
+    bg: 'bg-red-50',
+    border: 'border-red-200',
+    dot: 'bg-red-400'
+  }
 ]
 
 export default function PesananTab() {
   const [data, setData] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [typeFilter, setTypeFilter] = useState('all')
   const [selected, setSelected] = useState<Booking | null>(null)
-  const [updating, setUpdating] = useState(false)
+  const [updating, setUpdating] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+  // refreshKey dipakai untuk memicu ulang useEffect dari tombol Refresh
+  const [refreshKey, setRefreshKey] = useState(0)
 
-  const fetchAll = useCallback(async () => {
+  // Fungsi fetch dipisah agar bisa dipanggil dari handleStatusChange
+  const fetchAll = async () => {
     setLoading(true)
     const [{ data: pb }, { data: db }] = await Promise.all([
       supabase
@@ -60,292 +109,254 @@ export default function PesananTab() {
     ].sort((a, b) => new Date(String(b.created_at)).getTime() - new Date(String(a.created_at)).getTime())
     setData(merged as Booking[])
     setLoading(false)
-  }, [])
+  }
 
+  // Fetch awal & setiap kali refreshKey berubah — logika langsung di dalam effect
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchAll()
-  }, [fetchAll])
+    let cancelled = false
 
-  const filtered = data.filter((row) => {
-    const matchSearch =
-      search === '' ||
-      [row._name, row.full_name, row.email, row.phone].some((v) =>
-        String(v ?? '')
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      )
-    const matchStatus = statusFilter === 'all' || row.status === statusFilter
-    const matchType = typeFilter === 'all' || row._type === typeFilter
-    return matchSearch && matchStatus && matchType
-  })
+    const load = async () => {
+      setLoading(true)
+      const [{ data: pb }, { data: db }] = await Promise.all([
+        supabase
+          .from('package_bookings')
+          .select('*, packages(name, cover_image_url, location)')
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('destination_bookings')
+          .select('*, destinations(name, cover_image_url, location)')
+          .order('created_at', { ascending: false })
+      ])
+      const merged = [
+        ...(pb ?? []).map((b) => ({
+          ...b,
+          _type: 'paket',
+          _name: (b.packages as Record<string, string>)?.name ?? '-',
+          _image: (b.packages as Record<string, string>)?.cover_image_url ?? '',
+          _location: (b.packages as Record<string, string>)?.location ?? '-'
+        })),
+        ...(db ?? []).map((b) => ({
+          ...b,
+          _type: 'destinasi',
+          _name: (b.destinations as Record<string, string>)?.name ?? '-',
+          _image: (b.destinations as Record<string, string>)?.cover_image_url ?? '',
+          _location: (b.destinations as Record<string, string>)?.location ?? '-'
+        }))
+      ].sort((a, b) => new Date(String(b.created_at)).getTime() - new Date(String(a.created_at)).getTime())
+
+      if (!cancelled) {
+        setData(merged as Booking[])
+        setLoading(false)
+      }
+    }
+
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [refreshKey]) // hanya bergantung pada refreshKey, bukan fetchAll
 
   const handleStatusChange = async (booking: Booking, newStatus: string) => {
-    setUpdating(true)
+    setUpdating(String(booking.id))
     const table = booking._type === 'paket' ? 'package_bookings' : 'destination_bookings'
-    await supabase.from(table).update({ status: newStatus }).eq('id', String(booking.id))
+    const update: Record<string, unknown> = { status: newStatus }
+    if (newStatus === 'done') update.paid_at = new Date().toISOString()
+    await supabase.from(table).update(update).eq('id', String(booking.id))
     await fetchAll()
     if (selected?.id === booking.id) setSelected((prev) => (prev ? { ...prev, status: newStatus } : null))
-    setUpdating(false)
+    setUpdating(null)
   }
 
-  const handleDelete = async (booking: Booking) => {
-    if (!confirm(`Hapus pesanan dari ${String(booking.full_name)}?`)) return
-    const table = booking._type === 'paket' ? 'package_bookings' : 'destination_bookings'
-    await supabase.from(table).delete().eq('id', String(booking.id))
-    setSelected(null)
-    fetchAll()
-  }
-
-  const fmt = (v: unknown) =>
-    v ? new Date(String(v)).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'
-  const fmtPrice = (v: unknown) => `Rp ${Number(v ?? 0).toLocaleString('id-ID')}`
+  const filtered = data.filter((row) => {
+    if (!search) return true
+    return [row._name, row.full_name, row.email, row.phone].some((v) =>
+      String(v ?? '')
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    )
+  })
 
   return (
-    <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="bg-white rounded-xl border border-gray-100 p-3 flex flex-col sm:flex-row flex-wrap gap-2 items-start sm:items-center">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+    <div className="space-y-8">
+      {/* Topbar */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="font-bold text-[#0B2C4D] text-lg">Kelola Pesanan</h2>
+          <p className="text-gray-400 text-xs mt-0.5">{data.length} total pesanan</p>
+        </div>
+        <div className="flex items-center gap-2">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nama, email, telepon..."
-            className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B2C4D]/20 bg-gray-50"
+            placeholder="Cari nama, email..."
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#0B2C4D]/40 w-48"
           />
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Filter size={13} className="text-gray-400" />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0B2C4D]/20"
+          {/* Tombol refresh memicu ulang useEffect via refreshKey */}
+          <button
+            onClick={() => setRefreshKey((k) => k + 1)}
+            className="w-8 h-8 rounded-lg border border-gray-200 hover:bg-gray-50 flex items-center justify-center text-gray-400 transition"
           >
-            <option value="all">Semua Status</option>
-            {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v.label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0B2C4D]/20"
-          >
-            <option value="all">Semua Tipe</option>
-            <option value="paket">Paket Wisata</option>
-            <option value="destinasi">Destinasi</option>
-          </select>
+            <RefreshCw size={14} />
+          </button>
         </div>
-        <button
-          onClick={fetchAll}
-          className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition shrink-0"
-        >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-        </button>
-        <span className="text-xs text-gray-400 font-medium shrink-0">{filtered.length} pesanan</span>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-7 h-7 border-2 border-gray-200 border-t-[#0B2C4D] rounded-full animate-spin" />
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-16 text-gray-400 text-sm">Tidak ada pesanan ditemukan</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  {['Wisata', 'Tipe', 'Pemesan', 'Kontak', 'Peserta', 'Total', 'Status', 'Tanggal', 'Aksi'].map((h) => (
-                    <th
-                      key={h}
-                      className="text-left px-4 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filtered.map((row) => {
-                  const s = String(row.status ?? 'pending')
-                  const cfg = STATUS_CONFIG[s] ?? STATUS_CONFIG.pending
-                  return (
-                    <tr key={String(row.id)} className="hover:bg-gray-50/70 transition-colors">
-                      <td className="px-4 py-3 font-medium text-[#0B2C4D] max-w-[160px] truncate">{String(row._name)}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${row._type === 'paket' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}
-                        >
-                          {row._type === 'paket' ? <Package size={10} /> : <MapPin size={10} />}
-                          {String(row._type).toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-gray-700 max-w-[130px] truncate">{String(row.full_name ?? '-')}</td>
-                      <td className="px-4 py-3 text-gray-500 text-xs max-w-[140px] truncate">{String(row.email ?? '-')}</td>
-                      <td className="px-4 py-3 text-center text-gray-700">{String(row.participants ?? '-')}</td>
-                      <td className="px-4 py-3 font-semibold text-[#0B2C4D] whitespace-nowrap">
-                        {fmtPrice(row.total_price)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <select
-                          value={s}
-                          onChange={(e) => handleStatusChange(row, e.target.value)}
-                          disabled={updating}
-                          className="text-xs font-semibold px-2 py-1 rounded-full border-0 cursor-pointer focus:outline-none disabled:opacity-50"
-                          style={{ background: cfg.bg, color: cfg.color }}
-                        >
-                          {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-                            <option key={k} value={k}>
-                              {v.label}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">{fmt(row.created_at)}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5">
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="w-7 h-7 border-2 border-gray-200 border-t-[#0B2C4D] rounded-full animate-spin" />
+        </div>
+      ) : (
+        STATUS_GROUPS.map((group) => {
+          const rows = filtered.filter((b) => b.status === group.key)
+          const Icon = group.icon
+          return (
+            <div key={group.key} className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+              <div className={`flex items-center justify-between px-5 py-3.5 ${group.bg} border-b ${group.border}`}>
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-2 h-2 rounded-full ${group.dot}`} />
+                  <Icon size={15} className={group.color} />
+                  <span className={`font-bold text-sm ${group.color}`}>{group.label}</span>
+                  <span
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${group.bg} ${group.color} border ${group.border}`}
+                  >
+                    {rows.length}
+                  </span>
+                </div>
+              </div>
+
+              {rows.length === 0 ? (
+                <div className="bg-white px-5 py-8 text-center text-gray-400 text-sm">Tidak ada pesanan di kategori ini</div>
+              ) : (
+                <div className="bg-white divide-y divide-gray-50">
+                  {rows.map((booking) => {
+                    const date = String(booking.travel_date || booking.visit_date || '')
+                    const imgSrc = String(booking._image ?? '')
+                    const name = String(booking._name ?? '-')
+                    const location = String(booking._location ?? '-')
+                    const fullName = String(booking.full_name ?? '-')
+                    const participants = String(booking.participants ?? '-')
+                    const totalPrice = Number(booking.total_price ?? 0)
+                    const paidAt = booking.paid_at ? String(booking.paid_at) : null
+                    const bookingType = String(booking._type ?? '')
+                    return (
+                      <div
+                        key={String(booking.id)}
+                        className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50/50 transition"
+                      >
+                        {imgSrc && (
+                          <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                            <Image src={imgSrc} alt={name} fill className="object-cover" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${bookingType === 'paket' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}
+                            >
+                              {bookingType === 'paket' ? 'PAKET' : 'DESTINASI'}
+                            </span>
+                            <p className="font-semibold text-[#0B2C4D] text-sm truncate">{name}</p>
+                          </div>
+                          <div className="flex items-center gap-3 mt-1 flex-wrap">
+                            <span className="text-xs text-gray-500">{fullName}</span>
+                            <span className="text-gray-300">·</span>
+                            <span className="flex items-center gap-1 text-xs text-gray-400">
+                              <MapPin size={10} />
+                              {location}
+                            </span>
+                            {date && (
+                              <span className="flex items-center gap-1 text-xs text-gray-400">
+                                <Calendar size={10} />
+                                {new Date(date).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric'
+                                })}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1 text-xs text-gray-400">
+                              <Users size={10} />
+                              {participants} orang
+                            </span>
+                          </div>
+                          {group.key === 'paid' && paidAt && (
+                            <p className="text-[11px] text-green-600 mt-1">
+                              ✓ Lunas pada {new Date(paidAt).toLocaleString('id-ID')}
+                            </p>
+                          )}
+                          {group.key === 'done' && date && (
+                            <p className="text-[11px] text-purple-600 mt-1">
+                              ✈ Keberangkatan:{' '}
+                              {new Date(date).toLocaleDateString('id-ID', {
+                                weekday: 'long',
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                              })}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right shrink-0 hidden sm:block">
+                          <p className="font-bold text-[#0B2C4D] text-sm">Rp {totalPrice.toLocaleString('id-ID')}</p>
+                          <p className="text-[10px] text-gray-400">{bookingType}</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <button
-                            onClick={() => setSelected(row)}
-                            className="w-7 h-7 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-500 transition"
+                            onClick={() => setSelected(booking)}
+                            className="w-8 h-8 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-400 transition"
+                            title="Detail"
                           >
                             <Eye size={13} />
                           </button>
-                          <button
-                            onClick={() => handleDelete(row)}
-                            className="w-7 h-7 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                          {booking.status === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => handleStatusChange(booking, 'confirmed')}
+                                disabled={updating === String(booking.id)}
+                                className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition disabled:opacity-50"
+                              >
+                                <CheckCircle size={11} /> Konfirmasi
+                              </button>
+                              <button
+                                onClick={() => handleStatusChange(booking, 'cancelled')}
+                                disabled={updating === String(booking.id)}
+                                className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 border border-red-200 transition disabled:opacity-50"
+                              >
+                                <XCircle size={11} /> Tolak
+                              </button>
+                            </>
+                          )}
+                          {booking.status === 'confirmed' && (
+                            <button
+                              onClick={() => handleStatusChange(booking, 'cancelled')}
+                              disabled={updating === String(booking.id)}
+                              className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 border border-red-200 transition disabled:opacity-50"
+                            >
+                              <XCircle size={11} /> Batalkan
+                            </button>
+                          )}
+                          {booking.status === 'paid' && (
+                            <button
+                              onClick={() => handleStatusChange(booking, 'done')}
+                              disabled={updating === String(booking.id)}
+                              className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200 transition disabled:opacity-50"
+                            >
+                              <Package size={11} /> Tandai Berangkat
+                            </button>
+                          )}
                         </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Detail Modal */}
-      {selected && (
-        <AdminModal title="Detail Pesanan" onClose={() => setSelected(null)} size="lg">
-          <div className="space-y-5">
-            {/* Wisata info */}
-            <div className="flex gap-4 p-4 bg-gray-50 rounded-xl">
-              {!!selected._image && String(selected._image) !== '' && (
-                <div className="relative w-20 h-16 rounded-lg overflow-hidden shrink-0">
-                  <Image src={String(selected._image)} alt="" fill className="object-cover" unoptimized />
-                </div>
-              )}
-              <div>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full mb-1 inline-block ${selected._type === 'paket' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}
-                >
-                  {String(selected._type).toUpperCase()}
-                </span>
-                <p className="font-bold text-[#0B2C4D]">{String(selected._name)}</p>
-                <p className="text-xs text-gray-500">{String(selected._location)}</p>
-              </div>
-            </div>
-
-            {/* Data Pemesan */}
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Data Pemesan</p>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                {(
-                  [
-                    ['Nama', String(selected.full_name ?? '-')],
-                    ['Email', String(selected.email ?? '-')],
-                    ['Telepon', String(selected.phone ?? '-')],
-                    ['Peserta', `${String(selected.participants)} orang`],
-                    ['Tanggal Wisata', fmt(selected.travel_date ?? selected.visit_date)],
-                    ['Tanggal Pesan', fmt(selected.created_at)]
-                  ] as [string, string][]
-                ).map(([k, v]) => (
-                  <div key={k} className="bg-gray-50 rounded-lg px-3 py-2">
-                    <p className="text-[10px] text-gray-400 mb-0.5">{k}</p>
-                    <p className="font-medium text-[#0B2C4D]">{v}</p>
-                  </div>
-                ))}
-              </div>
-              {!!selected.notes && (
-                <div className="mt-3 bg-amber-50 rounded-lg px-3 py-2">
-                  <p className="text-[10px] text-amber-600 mb-0.5 font-semibold">Catatan</p>
-                  <p className="text-sm text-gray-700">{String(selected.notes)}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Total */}
-            <div className="flex items-center justify-between bg-[#0B2C4D] text-white rounded-xl px-4 py-3">
-              <span className="text-sm">Total Pembayaran</span>
-              <span className="font-bold text-lg">{fmtPrice(selected.total_price)}</span>
-            </div>
-
-            {/* Status Control */}
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Ubah Status Pesanan</p>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(STATUS_CONFIG).map(([k, v]) => {
-                  const Icon = v.icon
-                  const isCurrent = String(selected.status ?? '') === k
-                  return (
-                    <button
-                      key={k}
-                      onClick={() => handleStatusChange(selected, k)}
-                      disabled={updating || isCurrent}
-                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-semibold transition disabled:opacity-50 ${isCurrent ? 'border-current' : 'border-gray-200 hover:border-current'}`}
-                      style={{ color: v.color, background: isCurrent ? v.bg : 'white' }}
-                    >
-                      <Icon size={15} />
-                      {v.label}
-                      {isCurrent && <span className="ml-auto text-[10px] font-bold">AKTIF</span>}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Payment Info */}
-            {String(selected.status ?? '') === 'confirmed' && (
-              <div className="border-2 border-emerald-200 bg-emerald-50 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <CheckCircle size={16} className="text-emerald-600" />
-                  <p className="font-bold text-emerald-700 text-sm">Pesanan Dikonfirmasi — Info Pembayaran</p>
-                </div>
-                <p className="text-xs text-emerald-600 mb-3">
-                  Sampaikan info berikut ke pemesan untuk menyelesaikan pembayaran:
-                </p>
-                <div className="space-y-2">
-                  {BANK_INFO.map((b) => (
-                    <div key={b.bank} className="bg-white rounded-lg px-3 py-2.5 flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-gray-500">{b.bank}</p>
-                        <p className="font-bold text-[#0B2C4D] text-sm">{b.no}</p>
-                        <p className="text-xs text-gray-400">a.n. {b.atas}</p>
                       </div>
-                      <button
-                        onClick={() => navigator.clipboard.writeText(b.no)}
-                        className="text-xs text-blue-500 hover:underline"
-                      >
-                        Salin
-                      </button>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
-                <p className="text-[10px] text-emerald-600 mt-3">
-                  * Setelah pembayaran diterima, ubah status menjadi &quot;Selesai&quot;
-                </p>
-              </div>
-            )}
-          </div>
-        </AdminModal>
+              )}
+            </div>
+          )
+        })
+      )}
+
+      {selected && (
+        <PesananDetailModal data={selected} onClose={() => setSelected(null)} onStatusChange={handleStatusChange} />
       )}
     </div>
   )
