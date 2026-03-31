@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Logo from '@/components/atoms/logo'
@@ -11,6 +11,35 @@ import { useAuth } from '@/contexts/auth-context'
 import { useNotif } from '@/contexts/notif-context'
 import { LogOut, ChevronDown, ClipboardList, LayoutDashboard, UserCircle2 } from 'lucide-react'
 import LogoutToast from '@/components/organisms/logout-toast'
+import { useEffect } from 'react'
+
+// ── Avatar component — foto jika ada, inisial jika tidak ─────────────────
+function AvatarBubble({
+  size = 7,
+  textSize = 'text-xs',
+  avatarUrl,
+  initials,
+  displayName
+}: {
+  size?: number
+  textSize?: string
+  avatarUrl: string | null
+  initials: string
+  displayName: string
+}) {
+  return (
+    <div
+      className={`w-${size} h-${size} rounded-full overflow-hidden bg-[#FB8C00] flex items-center justify-center ${textSize} font-bold text-white shrink-0`}
+    >
+      {avatarUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+      ) : (
+        initials
+      )}
+    </div>
+  )
+}
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
@@ -66,6 +95,7 @@ export default function Navbar() {
 
   const initials = (profile?.full_name || profile?.email || 'U')[0].toUpperCase()
   const displayName = profile?.full_name || profile?.email?.split('@')[0] || 'User'
+  const avatarUrl = profile?.avatar_url ?? null
 
   return (
     <>
@@ -96,8 +126,8 @@ export default function Navbar() {
               label="Pages"
               items={[
                 { href: '/pages/blog-article', label: 'Blog & Article' },
-                { href: '/pages/guide', label: 'Tim Kami' }, // ✅ fixed: was /team
-                { href: '/pages/gallery', label: 'Galeri' } // ✅ fixed: was /gallery
+                { href: '/pages/guide', label: 'Tim Kami' },
+                { href: '/pages/gallery', label: 'Galeri' }
               ]}
             />
             <NavLink href="/kontak" label="Kontak" />
@@ -110,9 +140,13 @@ export default function Navbar() {
                     className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition"
                   >
                     <div className="relative">
-                      <div className="w-7 h-7 rounded-full bg-[#FB8C00] flex items-center justify-center text-xs font-bold shrink-0">
-                        {initials}
-                      </div>
+                      <AvatarBubble
+                        size={7}
+                        textSize="text-xs"
+                        avatarUrl={avatarUrl}
+                        initials={initials}
+                        displayName={displayName}
+                      />
                       {hasNotif && (
                         <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
                       )}
@@ -129,17 +163,23 @@ export default function Navbar() {
                       className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden text-gray-700 z-50"
                       style={{ animation: 'fadeUp 0.15s ease forwards' }}
                     >
+                      {/* Profile header in dropdown */}
                       <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-[#FB8C00] flex items-center justify-center text-xs font-bold text-white shrink-0">
-                            {initials}
-                          </div>
+                          <AvatarBubble
+                            size={8}
+                            textSize="text-xs"
+                            avatarUrl={avatarUrl}
+                            initials={initials}
+                            displayName={displayName}
+                          />
                           <div className="overflow-hidden">
                             <p className="text-xs font-semibold text-[#0B2C4D] truncate">{displayName}</p>
                             <p className="text-[11px] text-gray-400 truncate">{profile.email}</p>
                           </div>
                         </div>
                       </div>
+
                       {profile?.role !== 'admin' && (
                         <>
                           <Link
@@ -230,9 +270,13 @@ export default function Navbar() {
             {user && profile && (
               <div className="flex items-center gap-3 px-4 py-4 mb-3 bg-white/5 rounded-2xl border border-white/10">
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-[#FB8C00] flex items-center justify-center font-bold text-sm shrink-0">
-                    {initials}
-                  </div>
+                  <AvatarBubble
+                    size={10}
+                    textSize="text-sm"
+                    avatarUrl={avatarUrl}
+                    initials={initials}
+                    displayName={displayName}
+                  />
                   {hasNotif && (
                     <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#061E36]" />
                   )}
@@ -259,6 +303,7 @@ export default function Navbar() {
               </Link>
             ))}
 
+            {/* Paket Wisata accordion */}
             <div>
               <button
                 onClick={() => toggle('paket')}
@@ -291,6 +336,7 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* Destinasi accordion */}
             <div>
               <button
                 onClick={() => toggle('dest')}
@@ -323,6 +369,7 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* Pages accordion */}
             <div>
               <button
                 onClick={() => toggle('pages')}

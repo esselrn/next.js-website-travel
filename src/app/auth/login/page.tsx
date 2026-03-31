@@ -31,10 +31,14 @@ export default function LoginPage() {
     const { data: profile } = await supabase.from('users').select('role').eq('id', data.user!.id).single()
 
     if (profile?.role === 'admin') {
+      // Admin HANYA bisa masuk ke /admin — tidak ada akses ke halaman user
       router.push('/admin')
     } else {
-      const redirect = new URLSearchParams(window.location.search).get('redirect') || '/'
-      router.push(redirect)
+      // User biasa: ambil redirect param, tapi blokir jika mengarah ke /admin
+      const params = new URLSearchParams(window.location.search)
+      const redirect = params.get('redirect') || '/'
+      const safeRedirect = redirect.startsWith('/admin') ? '/' : redirect
+      router.push(safeRedirect)
     }
   }
 

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
+import { useNotif } from '@/contexts/notif-context'
 import { supabase } from '@/lib/supabase'
 import {
   Camera,
@@ -21,8 +22,6 @@ import {
 
 type Tab = 'profil' | 'akun'
 
-// Auto-compress gambar pakai Canvas sebelum upload
-// Output: JPEG max 800x800px, quality 0.8 — hasil ~100–300KB
 function compressImage(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new window.Image()
@@ -67,54 +66,68 @@ function compressImage(file: File): Promise<Blob> {
 }
 
 export default function ProfilPage() {
-  const { user, profile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
+  const { showToast } = useNotif()
   const [tab, setTab] = useState<Tab>('profil')
 
-  const p = profile as Record<string, unknown> | null
-  const [fullName, setFullName] = useState(profile?.full_name ?? '')
-  const [phone, setPhone] = useState((p?.phone as string) ?? '')
-  const [city, setCity] = useState((p?.city as string) ?? '')
-  const [birthdate, setBirthdate] = useState((p?.birthdate as string) ?? '')
-  const [avatarUrl, setAvatarUrl] = useState((p?.avatar_url as string) ?? '')
+  // ── FIX: inisialisasi field dari profile context, sync ulang saat profile berubah
+  // Pakai flag profileLoaded agar tidak override saat user sedang ngetik
+  const [profileLoaded, setProfileLoaded] = useState(false)
+  const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [city, setCity] = useState('')
+  const [birthdate, setBirthdate] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState('')
+  const [uploadError, setUploadError] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [uploadError, setUploadError] = useState('')
+
+  useEffect(() => {
+    // Hanya isi sekali saat profile pertama kali tersedia
+    if (profile && !profileLoaded) {
+      const p = profile as Record<string, unknown>
+      setFullName(profile.full_name ?? '')
+      setPhone((p.phone as string) ?? '')
+      setCity((p.city as string) ?? '')
+      setBirthdate((p.birthdate as string) ?? '')
+      setAvatarUrl(profile.avatar_url ?? '')
+      setProfileLoaded(true)
+    }
+  }, [profile, profileLoaded])
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !user) return
-
-    // Tampilkan preview lokal langsung
-    const localUrl = URL.createObjectURL(file)
-    setAvatarPreview(localUrl)
+    setAvatarPreview(URL.createObjectURL(file))
     setUploadError('')
     setUploading(true)
     setUploadStatus('Mengompresi gambar...')
-
     try {
-      // Compress dulu
       const compressed = await compressImage(file)
       setUploadStatus('Mengupload foto...')
-
       const path = `${user.id}/avatar.jpg`
       const { error: uploadErr } = await supabase.storage
         .from('avatars')
         .upload(path, compressed, { upsert: true, contentType: 'image/jpeg' })
-
       if (uploadErr) {
         setUploadError('Gagal upload foto. Coba lagi.')
         setAvatarPreview(null)
+        showToast('error', 'Upload Gagal', 'Tidak bisa mengupload foto. Silakan coba lagi.')
       } else {
         const { data } = supabase.storage.from('avatars').getPublicUrl(path)
         const freshUrl = `${data.publicUrl}?t=${Date.now()}`
         setAvatarUrl(freshUrl)
         setAvatarPreview(null)
         setUploadStatus('')
+        // Simpan ke DB langsung agar navbar avatar ikut update
+        await supabase.from('users').update({ avatar_url: freshUrl }).eq('id', user.id)
+        await refreshProfile()
+        showToast('success', 'Foto Diperbarui', 'Foto profil kamu berhasil diubah.')
       }
     } catch {
       setUploadError('Gagal memproses foto. Coba lagi.')
@@ -129,20 +142,38 @@ export default function ProfilPage() {
   const handleSave = async () => {
     if (!user) return
     setSaving(true)
-    await supabase
+    const { error } = await supabase
       .from('users')
       .update({ full_name: fullName, phone, city, birthdate: birthdate || null, avatar_url: avatarUrl })
       .eq('id', user.id)
+    if (error) {
+      showToast('error', 'Gagal Menyimpan', 'Terjadi kesalahan saat menyimpan profil.')
+    } else {
+      // Refresh context agar navbar ikut update (nama + avatar)
+      await refreshProfile()
+      showToast('success', 'Profil Tersimpan', 'Data profil kamu berhasil diperbarui.')
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+    }
     setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2500)
   }
 
-  const displayAvatar = avatarPreview || avatarUrl
+  // ── FIX avatar display: prioritaskan preview → state lokal → profile context
+  // Ini memastikan avatar di header halaman ini dan di sidebar/komponen lain sinkron
+  const displayAvatar = avatarPreview || avatarUrl || profile?.avatar_url || ''
   const initials = (fullName || profile?.email || 'U')[0].toUpperCase()
   const memberSince = user?.created_at
     ? new Date(user.created_at).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
     : '-'
+
+  const completionItems = [
+    { label: 'Nama Lengkap', done: !!fullName },
+    { label: 'Nomor Telepon', done: !!phone },
+    { label: 'Kota Asal', done: !!city },
+    { label: 'Tanggal Lahir', done: !!birthdate },
+    { label: 'Foto Profil', done: !!avatarUrl }
+  ]
+  const completionCount = completionItems.filter((i) => i.done).length
 
   const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
     { key: 'profil', label: 'Profil', icon: User },
@@ -165,9 +196,8 @@ export default function ProfilPage() {
             <ArrowLeft size={15} /> Kembali
           </button>
 
-          {/* PROFILE CARD */}
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 pb-6">
-            {/* Avatar */}
+            {/* Avatar — FIX: tampilkan foto jika ada, inisial jika tidak */}
             <div className="relative shrink-0">
               <div className="w-24 h-24 rounded-2xl overflow-hidden bg-[#FB8C00] flex items-center justify-center border-4 border-white/15 shadow-xl">
                 {displayAvatar ? (
@@ -191,7 +221,6 @@ export default function ProfilPage() {
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
             </div>
 
-            {/* Info */}
             <div className="text-center sm:text-left flex-1">
               <h1 className="font-montserrat font-bold text-2xl text-white leading-tight">{fullName || 'Nama Pengguna'}</h1>
               <p className="text-white/50 text-sm mt-0.5">{user?.email}</p>
@@ -210,11 +239,10 @@ export default function ProfilPage() {
               {uploadError && <p className="text-xs text-red-400 mt-1.5">{uploadError}</p>}
             </div>
 
-            {/* Quick stats */}
             <div className="flex gap-4 sm:gap-6 shrink-0">
               <div className="text-center">
-                <p className="text-xl font-bold text-white">—</p>
-                <p className="text-[10px] text-white/40 mt-0.5">Pesanan</p>
+                <p className="text-xl font-bold text-white">{completionCount * 20}%</p>
+                <p className="text-[10px] text-white/40 mt-0.5">Profil</p>
               </div>
               <div className="w-px bg-white/10" />
               <div className="text-center">
@@ -224,7 +252,6 @@ export default function ProfilPage() {
             </div>
           </div>
 
-          {/* TABS */}
           <div className="flex gap-1 border-t border-white/10 pt-1">
             {tabs.map(({ key, label, icon: Icon }) => (
               <button
@@ -251,7 +278,6 @@ export default function ProfilPage() {
       <div className="max-w-[860px] mx-auto px-6 py-8">
         {tab === 'profil' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* FORM */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <h2 className="font-bold text-[#0B2C4D] text-base mb-5 flex items-center gap-2">
@@ -325,9 +351,8 @@ export default function ProfilPage() {
               </div>
             </div>
 
-            {/* SIDEBAR */}
             <div className="space-y-5">
-              {/* Avatar upload card */}
+              {/* Avatar card */}
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                 <h3 className="font-bold text-[#0B2C4D] text-sm mb-3">Foto Profil</h3>
                 <div className="flex flex-col items-center gap-3">
@@ -360,13 +385,7 @@ export default function ProfilPage() {
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                 <h3 className="font-bold text-[#0B2C4D] text-sm mb-3">Kelengkapan Profil</h3>
                 <div className="space-y-2 mb-4">
-                  {[
-                    { label: 'Nama Lengkap', done: !!fullName },
-                    { label: 'Nomor Telepon', done: !!phone },
-                    { label: 'Kota Asal', done: !!city },
-                    { label: 'Tanggal Lahir', done: !!birthdate },
-                    { label: 'Foto Profil', done: !!avatarUrl }
-                  ].map(({ label, done }) => (
+                  {completionItems.map(({ label, done }) => (
                     <div key={label} className="flex items-center justify-between text-xs">
                       <span className={done ? 'text-gray-700' : 'text-gray-400'}>{label}</span>
                       <span className={done ? 'text-green-500 font-bold' : 'text-gray-300'}>{done ? '✓' : '○'}</span>
@@ -376,14 +395,10 @@ export default function ProfilPage() {
                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-[#0B2C4D] to-[#FB8C00] rounded-full transition-all duration-500"
-                    style={{
-                      width: `${([!!fullName, !!phone, !!city, !!birthdate, !!avatarUrl].filter(Boolean).length / 5) * 100}%`
-                    }}
+                    style={{ width: `${(completionCount / 5) * 100}%` }}
                   />
                 </div>
-                <p className="text-[11px] text-gray-400 mt-1.5 text-right">
-                  {[!!fullName, !!phone, !!city, !!birthdate, !!avatarUrl].filter(Boolean).length}/5 diisi
-                </p>
+                <p className="text-[11px] text-gray-400 mt-1.5 text-right">{completionCount}/5 diisi</p>
               </div>
 
               {/* Quick links */}
@@ -421,34 +436,43 @@ export default function ProfilPage() {
                 <Shield size={16} className="text-[#FB8C00]" /> Informasi Akun
               </h2>
               <div className="space-y-3">
-                <div className="flex items-center justify-between py-3 border-b border-gray-50">
-                  <span className="text-sm text-gray-500">Status Akun</span>
-                  <span className="text-xs font-bold bg-green-50 text-green-600 px-2.5 py-1 rounded-full border border-green-200">
-                    Aktif
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-50">
-                  <span className="text-sm text-gray-500">Member Sejak</span>
-                  <span className="text-sm font-medium text-[#0B2C4D]">
-                    {user?.created_at
+                {[
+                  {
+                    label: 'Status Akun',
+                    value: null,
+                    badge: { text: 'Aktif', color: 'bg-green-50 text-green-600 border-green-200' }
+                  },
+                  {
+                    label: 'Member Sejak',
+                    value: user?.created_at
                       ? new Date(user.created_at).toLocaleDateString('id-ID', {
                           day: 'numeric',
                           month: 'long',
                           year: 'numeric'
                         })
-                      : '-'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-50">
-                  <span className="text-sm text-gray-500">Tipe Akun</span>
-                  <span className="text-sm font-medium text-[#0B2C4D]">Member</span>
-                </div>
-                <div className="flex items-center justify-between py-3">
-                  <span className="text-sm text-gray-500">Email Terverifikasi</span>
-                  <span className="text-xs font-bold bg-green-50 text-green-600 px-2.5 py-1 rounded-full border border-green-200">
-                    ✓ Terverifikasi
-                  </span>
-                </div>
+                      : '-'
+                  },
+                  { label: 'Tipe Akun', value: 'Member' },
+                  {
+                    label: 'Email Terverifikasi',
+                    value: null,
+                    badge: { text: '✓ Terverifikasi', color: 'bg-green-50 text-green-600 border-green-200' }
+                  }
+                ].map(({ label, value, badge }, i, arr) => (
+                  <div
+                    key={label}
+                    className={`flex items-center justify-between py-3 ${i < arr.length - 1 ? 'border-b border-gray-50' : ''}`}
+                  >
+                    <span className="text-sm text-gray-500">{label}</span>
+                    {badge ? (
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${badge.color}`}>
+                        {badge.text}
+                      </span>
+                    ) : (
+                      <span className="text-sm font-medium text-[#0B2C4D]">{value}</span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>

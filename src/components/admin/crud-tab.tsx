@@ -2,7 +2,19 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Search, Plus, Trash2, Eye, Pencil, RefreshCw, CheckCircle, XCircle, Star } from 'lucide-react'
+import {
+  Search,
+  Plus,
+  Trash2,
+  Eye,
+  Pencil,
+  RefreshCw,
+  CheckCircle,
+  XCircle,
+  Star,
+  Eye as EyeIcon,
+  EyeOff
+} from 'lucide-react'
 import AdminModal from './admin-modal'
 import type { Tab } from './admin-sidebar'
 
@@ -58,10 +70,12 @@ const FIELDS: Partial<Record<Tab, { key: string; label: string; type?: string; r
       { key: 'hero_image', label: 'URL Hero Image' },
       { key: 'content', label: 'Konten', textarea: true }
     ],
+    // Field pengguna khusus — password hanya tampil saat Tambah (bukan Edit)
+    // Ini di-handle secara custom di render modal di bawah
     pengguna: [
-      { key: 'full_name', label: 'Nama Lengkap' },
-      { key: 'email', label: 'Email', type: 'email' },
-      { key: 'role', label: 'Role (user/admin)' }
+      { key: 'full_name', label: 'Nama Lengkap', required: true },
+      { key: 'email', label: 'Email', type: 'email', required: true },
+      { key: 'role', label: 'Role (user/admin)', required: true }
     ],
     kontak: [
       { key: 'name', label: 'Nama' },
@@ -232,12 +246,17 @@ export default function CrudTab({ tab, onDataChange }: Props) {
   const [addOpen, setAddOpen] = useState(false)
   const [form, setForm] = useState<Row>({})
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  // State khusus untuk field password di form pengguna
+  const [newPassword, setNewPassword] = useState('')
+  const [showNewPass, setShowNewPass] = useState(false)
 
   const tableName = TABLE_MAP[tab] ?? tab
   const cols = COLUMNS[tab] ?? []
   const fields = FIELDS[tab] ?? []
   const isReadOnly = tab === 'kontak' || tab === 'newsletter'
   const hasFeatured = tab === 'paket' || tab === 'destinasi'
+  const isPengguna = tab === 'pengguna'
 
   const tabLabel: Partial<Record<Tab, string>> = {
     paket: 'Paket',
@@ -270,7 +289,6 @@ export default function CrudTab({ tab, onDataChange }: Props) {
     setLoading(false)
   }, [tableName, tab])
 
-  // Wrap in async IIFE so setState happens asynchronously — satisfies react-hooks/set-state-in-effect
   useEffect(() => {
     void (async () => {
       await fetchData()
@@ -302,6 +320,64 @@ export default function CrudTab({ tab, onDataChange }: Props) {
 
   const handleSave = async () => {
     setSaving(true)
+    setSaveError('')
+
+    // ── TAMBAH PENGGUNA BARU ─────────────────────────────────────────────────
+    // Pakai API route (service role) agar bisa set password + role langsung
+    if (isPengguna && !editRow) {
+      if (!form.full_name || !form.email || !newPassword || !form.role) {
+        setSaveError('Nama, email, password, dan role wajib diisi.')
+        setSaving(false)
+        return
+      }
+      if (newPassword.length < 6) {
+        setSaveError('Password minimal 6 karakter.')
+        setSaving(false)
+        return
+      }
+
+      const res = await fetch('/api/admin/create-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email,
+          password: newPassword,
+          fullName: form.full_name,
+          role: form.role
+        })
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setSaveError(json.error ?? 'Gagal membuat pengguna.')
+        setSaving(false)
+        return
+      }
+
+      setSaving(false)
+      setAddOpen(false)
+      setForm({})
+      setNewPassword('')
+      void fetchData()
+      onDataChange?.()
+      return
+    }
+
+    // ── EDIT PENGGUNA (update role/nama saja, password tidak diubah) ─────────
+    if (isPengguna && editRow) {
+      const payload: Row = {
+        full_name: form.full_name,
+        role: form.role
+      }
+      await supabase.from(tableName).update(payload).eq('id', String(editRow.id))
+      setSaving(false)
+      setEditRow(null)
+      setForm({})
+      void fetchData()
+      onDataChange?.()
+      return
+    }
+
+    // ── CRUD BIASA (bukan pengguna) ──────────────────────────────────────────
     if (editRow) {
       const payload: Row = {}
       fields.forEach((f) => {
@@ -316,6 +392,7 @@ export default function CrudTab({ tab, onDataChange }: Props) {
       })
       await supabase.from(tableName).insert([payload])
     }
+
     setSaving(false)
     setEditRow(null)
     setAddOpen(false)
@@ -328,12 +405,24 @@ export default function CrudTab({ tab, onDataChange }: Props) {
     setEditRow(row)
     setForm({ ...row })
     setAddOpen(false)
+    setSaveError('')
+    setNewPassword('')
   }
 
   const openAdd = () => {
     setEditRow(null)
     setForm({})
     setAddOpen(true)
+    setSaveError('')
+    setNewPassword('')
+  }
+
+  const closeModal = () => {
+    setAddOpen(false)
+    setEditRow(null)
+    setForm({})
+    setSaveError('')
+    setNewPassword('')
   }
 
   return (
@@ -478,45 +567,127 @@ export default function CrudTab({ tab, onDataChange }: Props) {
 
       {/* Add/Edit Modal */}
       {(addOpen || editRow) && (
-        <AdminModal
-          title={editRow ? `Edit ${tabLabel[tab]}` : `Tambah ${tabLabel[tab]}`}
-          onClose={() => {
-            setAddOpen(false)
-            setEditRow(null)
-            setForm({})
-          }}
-          size="lg"
-        >
+        <AdminModal title={editRow ? `Edit ${tabLabel[tab]}` : `Tambah ${tabLabel[tab]}`} onClose={closeModal} size="lg">
           <div className="space-y-3">
-            {fields.map((f) => (
-              <div key={f.key}>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">
-                  {f.label} {f.required && <span className="text-red-500">*</span>}
-                </label>
-                {f.textarea ? (
-                  <textarea
-                    value={String(form[f.key] ?? '')}
-                    onChange={(e) => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
-                    rows={3}
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4D]/20 bg-gray-50 resize-none"
-                  />
-                ) : (
+            {/* Info box untuk tambah pengguna */}
+            {isPengguna && !editRow && (
+              <div className="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5 text-xs text-blue-700">
+                Akun baru akan langsung aktif tanpa perlu verifikasi email.
+              </div>
+            )}
+
+            {/* Info box untuk edit pengguna */}
+            {isPengguna && editRow && (
+              <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 text-xs text-amber-700">
+                Hanya nama dan role yang bisa diubah di sini. Password tidak dapat diubah melalui panel ini.
+              </div>
+            )}
+
+            {/* Field pengguna: custom render */}
+            {isPengguna ? (
+              <>
+                {/* Nama Lengkap */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Nama Lengkap <span className="text-red-500">*</span>
+                  </label>
                   <input
-                    type={f.type ?? 'text'}
-                    value={String(form[f.key] ?? '')}
-                    onChange={(e) => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
+                    type="text"
+                    value={String(form.full_name ?? '')}
+                    onChange={(e) => setForm((p) => ({ ...p, full_name: e.target.value }))}
                     className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4D]/20 bg-gray-50"
                   />
+                </div>
+
+                {/* Email — hanya saat tambah, tidak bisa diubah saat edit */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={String(form.email ?? '')}
+                    onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                    disabled={!!editRow}
+                    className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4D]/20 bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+
+                {/* Password — hanya saat tambah */}
+                {!editRow && (
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">
+                      Password <span className="text-red-500">*</span>
+                      <span className="text-gray-400 font-normal ml-1">(min. 6 karakter)</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showNewPass ? 'text' : 'password'}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Masukkan password"
+                        className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#0B2C4D]/20 bg-gray-50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPass((s) => !s)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                      >
+                        {showNewPass ? <EyeOff size={14} /> : <EyeIcon size={14} />}
+                      </button>
+                    </div>
+                  </div>
                 )}
-              </div>
-            ))}
+
+                {/* Role */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Role <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={String(form.role ?? 'user')}
+                    onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
+                    className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4D]/20 bg-gray-50"
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              </>
+            ) : (
+              /* Field generik untuk tab lain */
+              fields.map((f) => (
+                <div key={f.key}>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    {f.label} {f.required && <span className="text-red-500">*</span>}
+                  </label>
+                  {f.textarea ? (
+                    <textarea
+                      value={String(form[f.key] ?? '')}
+                      onChange={(e) => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
+                      rows={3}
+                      className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4D]/20 bg-gray-50 resize-none"
+                    />
+                  ) : (
+                    <input
+                      type={f.type ?? 'text'}
+                      value={String(form[f.key] ?? '')}
+                      onChange={(e) => setForm((p) => ({ ...p, [f.key]: e.target.value }))}
+                      className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4D]/20 bg-gray-50"
+                    />
+                  )}
+                </div>
+              ))
+            )}
+
+            {/* Error message */}
+            {saveError && (
+              <div className="bg-red-50 border border-red-100 rounded-xl px-3 py-2.5 text-xs text-red-600">{saveError}</div>
+            )}
+
             <div className="flex gap-3 pt-2">
               <button
-                onClick={() => {
-                  setAddOpen(false)
-                  setEditRow(null)
-                  setForm({})
-                }}
+                onClick={closeModal}
                 className="flex-1 border border-gray-200 text-gray-600 text-sm font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition"
               >
                 Batal
