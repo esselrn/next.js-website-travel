@@ -7,7 +7,7 @@ export default function HeroSection() {
     <section className="relative w-full overflow-hidden">
       {/* HERO IMAGE + CONTENT */}
       <div className="relative w-full min-h-[700px] lg:min-h-[780px]">
-        <Image src="/assets/bali.jpg" alt="Hero Background" fill className="object-cover" priority />
+        <Image src="/assets/homepage/bali.jpg" alt="Hero Background" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-[#0B2C4D]/60" />
         <div className="relative z-10 max-w-[1440px] mx-auto px-6 pt-[140px] pb-20">
           <HeroContent />

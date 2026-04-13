@@ -4,11 +4,11 @@ import Image from 'next/image'
 import { useState } from 'react'
 
 const gallery = [
-  { country: 'Indonesia', title: 'Gunung Bromo', image: '/assets/desgallery1.jpg' },
-  { country: 'Indonesia', title: 'Pantai Kelingking', image: '/assets/desgallery2.jpg' },
-  { country: 'Indonesia', title: 'Pura Ulun Danu Beratan', image: '/assets/desgallery3.jpg' },
-  { country: 'Indonesia', title: 'Candi Prambanan', image: '/assets/desgallery4.jpg' },
-  { country: 'Indonesia', title: 'Labuan Bajo', image: '/assets/desgallery5.jpg' }
+  { country: 'Indonesia', title: 'Gunung Bromo', image: '/assets/paket-wisata/galeri/gallery1.jpg' },
+  { country: 'Indonesia', title: 'Pantai Kelingking', image: '/assets/paket-wisata/galeri/gallery2.jpg' },
+  { country: 'Indonesia', title: 'Pura Ulun Danu Beratan', image: '/assets/paket-wisata/galeri/gallery3.jpg' },
+  { country: 'Indonesia', title: 'Candi Prambanan', image: '/assets/paket-wisata/galeri/gallery4.jpg' },
+  { country: 'Indonesia', title: 'Labuan Bajo', image: '/assets/paket-wisata/galeri/gallery5.jpg' }
 ]
 
 export default function DestinationGallerySection() {

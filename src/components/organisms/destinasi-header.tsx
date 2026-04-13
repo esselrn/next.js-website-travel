@@ -3,7 +3,7 @@ import Image from 'next/image'
 export default function PageHeaderDestinasi() {
   return (
     <section className="relative w-full h-[250px]">
-      <Image src="/assets/bali01.jpg" alt="Destinasi NusaTrip" fill priority className="object-cover" />
+      <Image src="/assets/destinasi/header.jpg" alt="Destinasi NusaTrip" fill priority className="object-cover" />
       <div className="absolute inset-0 bg-black/60" />
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
         <span className="font-montserrat text-xs tracking-[0.3em] text-orange-400 uppercase mb-3">Jelajahi Nusantara</span>

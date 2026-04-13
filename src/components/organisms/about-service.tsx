@@ -27,7 +27,7 @@ export default function AboutServiceSection() {
 
           {/* RIGHT IMAGE */}
           <div className="relative w-full h-[360px] md:h-[420px]">
-            <Image src="/assets/ilustrasi.png" alt="Layanan Wisata NusaTrip" fill priority className="object-contain" />
+            <Image src="/assets/about/ilustrasi.jpeg" alt="Layanan Wisata NusaTrip" fill priority className="object-contain" />
           </div>
         </div>
       </div>

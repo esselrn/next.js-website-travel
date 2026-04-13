@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import Image from 'next/image'
 import { X, ZoomIn, MapPin, ChevronLeft, ChevronRight, Images } from 'lucide-react'
 
@@ -16,89 +15,33 @@ type GalleryItem = {
 
 const CATEGORIES = ['Semua', 'Alam', 'Budaya', 'Kuliner', 'Petualangan', 'Pantai']
 
-const FALLBACK: GalleryItem[] = [
-  { id: '1', title: 'Keindahan Bali', location: 'Bali', image_url: '/assets/bali.jpg', category: 'Alam', sort_order: 1 },
-  {
-    id: '2',
-    title: 'Raja Ampat',
-    location: 'Papua Barat',
-    image_url: '/assets/bali01.jpg',
-    category: 'Pantai',
-    sort_order: 2
-  },
-  {
-    id: '3',
-    title: 'Danau Toba',
-    location: 'Sumatera Utara',
-    image_url: '/assets/bali.jpg',
-    category: 'Alam',
-    sort_order: 3
-  },
-  {
-    id: '4',
-    title: 'Borobudur',
-    location: 'Jawa Tengah',
-    image_url: '/assets/bali01.jpg',
-    category: 'Budaya',
-    sort_order: 4
-  },
-  {
-    id: '5',
-    title: 'Gunung Bromo',
-    location: 'Jawa Timur',
-    image_url: '/assets/bali.jpg',
-    category: 'Petualangan',
-    sort_order: 5
-  },
-  { id: '6', title: 'Nusa Penida', location: 'Bali', image_url: '/assets/bali01.jpg', category: 'Pantai', sort_order: 6 },
-  { id: '7', title: 'Labuan Bajo', location: 'NTT', image_url: '/assets/bali.jpg', category: 'Pantai', sort_order: 7 },
-  {
-    id: '8',
-    title: 'Prambanan',
-    location: 'Yogyakarta',
-    image_url: '/assets/bali01.jpg',
-    category: 'Budaya',
-    sort_order: 8
-  },
-  {
-    id: '9',
-    title: 'Karimunjawa',
-    location: 'Jawa Tengah',
-    image_url: '/assets/bali.jpg',
-    category: 'Pantai',
-    sort_order: 9
-  },
-  {
-    id: '10',
-    title: 'Kawah Ijen',
-    location: 'Jawa Timur',
-    image_url: '/assets/bali01.jpg',
-    category: 'Petualangan',
-    sort_order: 10
-  },
-  {
-    id: '11',
-    title: 'Rendang Padang',
-    location: 'Sumatra Barat',
-    image_url: '/assets/bali.jpg',
-    category: 'Kuliner',
-    sort_order: 11
-  },
-  { id: '12', title: 'Tari Kecak', location: 'Bali', image_url: '/assets/bali01.jpg', category: 'Budaya', sort_order: 12 }
+// Single source of truth — edit di sini untuk update gallery
+const GALLERY_DATA: GalleryItem[] = [
+  { id: '1',  title: 'Pura Tirta Empul',         location: 'Tampaksiring, Bali',       image_url: '/assets/pages/galeri/galeri1.jpg',  category: 'Budaya',      sort_order: 1  },
+  { id: '2',  title: 'Prambanan Saat Senja',      location: 'Yogyakarta',               image_url: '/assets/pages/galeri/galeri2.jpg',  category: 'Budaya',      sort_order: 2  },
+  { id: '3',  title: 'Raja Ampat Overwater',      location: 'Papua Barat',              image_url: '/assets/pages/galeri/galeri3.jpg',  category: 'Pantai',      sort_order: 3  },
+  { id: '4',  title: 'Bukit Teletubbies Bromo',   location: 'Probolinggo, Jawa Timur',  image_url: '/assets/pages/galeri/galeri4.jpg',  category: 'Petualangan', sort_order: 4  },
+  { id: '5',  title: 'Rumah Gadang Minangkabau',  location: 'Sumatra Barat',            image_url: '/assets/pages/galeri/galeri5.jpg',  category: 'Budaya',      sort_order: 5  },
+  { id: '6',  title: 'Gerbang Pura Lempuyang',    location: 'Karangasem, Bali',         image_url: '/assets/pages/galeri/galeri6.jpg',  category: 'Budaya',      sort_order: 6  },
+  { id: '7',  title: 'Kompleks Candi Prambanan',  location: 'Yogyakarta',               image_url: '/assets/pages/galeri/galeri7.jpg',  category: 'Budaya',      sort_order: 7  },
+  { id: '8',  title: 'Pantai Kelingking',         location: 'Nusa Penida, Bali',        image_url: '/assets/pages/galeri/galeri8.jpg',  category: 'Pantai',      sort_order: 8  },
+  { id: '9',  title: 'Pura Ulun Danu Beratan',    location: 'Bedugul, Bali',            image_url: '/assets/pages/galeri/galeri9.jpg',  category: 'Alam',        sort_order: 9  },
+  { id: '10', title: 'Pantai Pasir Putih Bali',   location: 'Karangasem, Bali',         image_url: '/assets/pages/galeri/galeri10.jpg', category: 'Pantai',      sort_order: 10 },
+  { id: '11', title: 'Pantai Tanah Lot',          location: 'Tabanan, Bali',            image_url: '/assets/pages/galeri/galeri11.jpg', category: 'Pantai',      sort_order: 11 },
+  { id: '12', title: 'Kebun Teh Kemuning',        location: 'Karanganyar, Jawa Tengah', image_url: '/assets/pages/galeri/galeri12.jpg', category: 'Alam',        sort_order: 12 },
 ]
 
-// Determine cell span for a more dynamic mosaic layout
-function getSpan(index: number): { col: string; row: string; aspect: string } {
+function getSpan(index: number): { col: string; row: string } {
   const patterns = [
-    { col: 'col-span-2', row: 'row-span-2', aspect: 'aspect-square' }, // big
-    { col: 'col-span-1', row: 'row-span-1', aspect: 'aspect-[4/3]' }, // small
-    { col: 'col-span-1', row: 'row-span-1', aspect: 'aspect-[4/3]' }, // small
-    { col: 'col-span-1', row: 'row-span-2', aspect: 'aspect-[3/4]' }, // tall
-    { col: 'col-span-2', row: 'row-span-1', aspect: 'aspect-[16/7]' }, // wide
-    { col: 'col-span-1', row: 'row-span-1', aspect: 'aspect-[4/3]' }, // small
-    { col: 'col-span-1', row: 'row-span-1', aspect: 'aspect-[4/3]' }, // small
-    { col: 'col-span-1', row: 'row-span-1', aspect: 'aspect-square' }, // square
-    { col: 'col-span-2', row: 'row-span-1', aspect: 'aspect-[16/7]' } // wide
+    { col: 'col-span-2', row: 'row-span-2' },
+    { col: 'col-span-1', row: 'row-span-1' },
+    { col: 'col-span-1', row: 'row-span-1' },
+    { col: 'col-span-1', row: 'row-span-2' },
+    { col: 'col-span-2', row: 'row-span-1' },
+    { col: 'col-span-1', row: 'row-span-1' },
+    { col: 'col-span-1', row: 'row-span-1' },
+    { col: 'col-span-1', row: 'row-span-1' },
+    { col: 'col-span-2', row: 'row-span-1' },
   ]
   return patterns[index % patterns.length]
 }
@@ -111,13 +54,7 @@ export default function GalleryPage() {
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
   useEffect(() => {
-    supabase
-      .from('gallery')
-      .select('*')
-      .order('sort_order')
-      .then(({ data }) => {
-        setItems(data && data.length > 0 ? data : FALLBACK)
-      })
+    setItems(GALLERY_DATA)
   }, [])
 
   const filtered = category === 'Semua' ? items : items.filter((i) => i.category === category)
@@ -153,7 +90,6 @@ export default function GalleryPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightbox, lightboxIndex])
 
-  // Reset showAll when category changes
   useEffect(() => {
     setShowAll(false)
   }, [category])
@@ -188,8 +124,6 @@ export default function GalleryPage() {
             jelajahi.
           </p>
         </div>
-
-        {/* Floating count badge */}
         <div className="absolute bottom-8 right-8 hidden md:flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-5 py-2.5">
           <span className="w-2 h-2 bg-[#FB8C00] rounded-full animate-pulse" />
           <span className="text-white text-sm font-medium">{items.length} foto tersedia</span>
@@ -228,7 +162,6 @@ export default function GalleryPage() {
             </div>
           ) : (
             <>
-              {/* Mosaic grid */}
               <div className="grid grid-cols-3 gap-3 auto-rows-[200px]">
                 {visible.map((item, i) => {
                   const span = getSpan(i)
@@ -245,22 +178,15 @@ export default function GalleryPage() {
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-                      {/* Gradient overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0B2C4D]/75 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                      {/* Zoom icon */}
                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 bg-white/25 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
                         <ZoomIn size={18} className="text-white" />
                       </div>
-
-                      {/* Category badge */}
                       <div className="absolute top-3 left-3">
                         <span className="text-[10px] font-bold bg-[#FB8C00] text-white px-2.5 py-1 rounded-full shadow-sm">
                           {item.category}
                         </span>
                       </div>
-
-                      {/* Info on hover */}
                       <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
                         <p className="font-montserrat font-bold text-white text-sm leading-tight">{item.title}</p>
                         <div className="flex items-center gap-1 mt-1">
@@ -273,7 +199,6 @@ export default function GalleryPage() {
                 })}
               </div>
 
-              {/* Show more / less */}
               {filtered.length > 9 && (
                 <div className="flex flex-col items-center gap-3 mt-12">
                   <p className="text-gray-400 text-sm">
@@ -323,37 +248,24 @@ export default function GalleryPage() {
           className="fixed inset-0 z-50 bg-black/92 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={() => setLightbox(null)}
         >
-          {/* Close */}
           <button
             onClick={() => setLightbox(null)}
             className="absolute top-5 right-5 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition z-10"
           >
             <X size={18} />
           </button>
-
-          {/* Prev */}
           <button
-            onClick={(e) => {
-              e.stopPropagation()
-              prev()
-            }}
+            onClick={(e) => { e.stopPropagation(); prev() }}
             className="absolute left-4 md:left-8 w-11 h-11 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition z-10"
           >
             <ChevronLeft size={22} />
           </button>
-
-          {/* Next */}
           <button
-            onClick={(e) => {
-              e.stopPropagation()
-              next()
-            }}
+            onClick={(e) => { e.stopPropagation(); next() }}
             className="absolute right-4 md:right-8 w-11 h-11 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition z-10"
           >
             <ChevronRight size={22} />
           </button>
-
-          {/* Image container */}
           <div
             className="relative max-w-5xl w-full rounded-2xl overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
@@ -380,8 +292,6 @@ export default function GalleryPage() {
               </div>
             </div>
           </div>
-
-          {/* Counter */}
           <p className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/40 text-xs font-medium">
             {lightboxIndex + 1} / {filtered.length}
           </p>

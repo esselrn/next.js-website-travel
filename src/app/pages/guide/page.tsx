@@ -4,9 +4,6 @@ import { useState } from 'react'
 import Image from 'next/image'
 import {
   Instagram,
-  Linkedin,
-  Twitter,
-  Mail,
   Star,
   MapPin,
   Award,
@@ -38,12 +35,12 @@ type Guide = {
   years_exp: number
   specialties: GuideSpecialty[]
   regions: string[]
-  instagram?: string
-  linkedin?: string
-  twitter?: string
-  email?: string
+  instagram: string
 }
 
+const IG_LINK = 'https://www.instagram.com/rpannrha_?igsh=MWFscTdiNGtvODNyOA=='
+
+// Single source of truth — edit di sini untuk update data guide
 const guides: Guide[] = [
   {
     id: '1',
@@ -51,7 +48,7 @@ const guides: Guide[] = [
     role: 'Senior Mountain Guide',
     tagline: 'Penakluk puncak-puncak tertinggi Nusantara',
     bio: 'Bersertifikat BNSP dengan pengalaman mendaki lebih dari 80 puncak di Indonesia. Spesialis trek Rinjani, Semeru, dan Carstensz Pyramid.',
-    photo_url: '/assets/bali.jpg',
+    photo_url: '/assets/pages/tim-kami/aksa-fathan.jpg',
     rating: 4.97,
     total_reviews: 312,
     trips_completed: 847,
@@ -62,8 +59,7 @@ const guides: Guide[] = [
       { icon: <Camera size={12} />, label: 'Fotografi' }
     ],
     regions: ['Lombok', 'Jawa', 'Papua'],
-    instagram: '#',
-    email: 'rizky@nusatrip.id'
+    instagram: IG_LINK
   },
   {
     id: '2',
@@ -71,7 +67,7 @@ const guides: Guide[] = [
     role: 'Dive Master & Marine Guide',
     tagline: 'Penjelajah dunia bawah laut Raja Ampat',
     bio: 'PADI Dive Master bersertifikat internasional. Lebih dari 2.000 dive log di perairan Indonesia. Expert underwater photography dan marine biology.',
-    photo_url: '/assets/bali.jpg',
+    photo_url: '/assets/pages/tim-kami/ruby.jpg',
     rating: 4.95,
     total_reviews: 428,
     trips_completed: 1203,
@@ -82,8 +78,7 @@ const guides: Guide[] = [
       { icon: <Compass size={12} />, label: 'Snorkeling' }
     ],
     regions: ['Raja Ampat', 'Komodo', 'Bunaken'],
-    instagram: '#',
-    linkedin: '#'
+    instagram: IG_LINK
   },
   {
     id: '3',
@@ -91,7 +86,7 @@ const guides: Guide[] = [
     role: 'Cultural Heritage Guide',
     tagline: 'Penjaga cerita dan tradisi nusantara',
     bio: 'Lulusan Arkeologi UGM dengan keahlian mendalam pada sejarah Jawa, Bali, dan Sulawesi. Dipercaya memandu ratusan delegasi internasional.',
-    photo_url: '/assets/bali.jpg',
+    photo_url: '/assets/pages/tim-kami/aamon-guler.jpg',
     rating: 4.98,
     total_reviews: 567,
     trips_completed: 1540,
@@ -102,8 +97,7 @@ const guides: Guide[] = [
       { icon: <Users size={12} />, label: 'Budaya' }
     ],
     regions: ['Yogyakarta', 'Bali', 'Sulawesi'],
-    instagram: '#',
-    email: 'budi@nusatrip.id'
+    instagram: IG_LINK
   },
   {
     id: '4',
@@ -111,7 +105,7 @@ const guides: Guide[] = [
     role: 'Eco & Forest Guide',
     tagline: 'Pemandu hutan tropis & wildlife Indonesia',
     bio: 'Ahli botani dan zoologi lapangan dari Kalimantan. Berpengalaman tracking orangutan, bekantan, dan satwa endemik Borneo di habitatnya.',
-    photo_url: '/assets/bali.jpg',
+    photo_url: '/assets/pages/tim-kami/guinevere.jpg',
     rating: 4.93,
     total_reviews: 189,
     trips_completed: 412,
@@ -122,8 +116,7 @@ const guides: Guide[] = [
       { icon: <Camera size={12} />, label: 'Birdwatching' }
     ],
     regions: ['Kalimantan', 'Sumatra', 'Sulawesi'],
-    instagram: '#',
-    linkedin: '#'
+    instagram: IG_LINK
   },
   {
     id: '5',
@@ -131,7 +124,7 @@ const guides: Guide[] = [
     role: 'Adventure & Surfing Guide',
     tagline: 'Rider ombak & petualang pantai selatan',
     bio: 'Mantan atlet surfing nasional yang kini berbagi passion dengan wisatawan. Spesialis surf spots Bali, Lombok, dan Mentawai Islands.',
-    photo_url: '/assets/bali.jpg',
+    photo_url: '/assets/pages/tim-kami/essel-paxley.jpg',
     rating: 4.91,
     total_reviews: 276,
     trips_completed: 703,
@@ -142,8 +135,7 @@ const guides: Guide[] = [
       { icon: <Camera size={12} />, label: 'Content' }
     ],
     regions: ['Bali', 'Mentawai', 'Lombok'],
-    twitter: '#',
-    instagram: '#'
+    instagram: IG_LINK
   },
   {
     id: '6',
@@ -151,7 +143,7 @@ const guides: Guide[] = [
     role: 'Culinary & Village Guide',
     tagline: 'Penjelajah cita rasa autentik nusantara',
     bio: 'Food journalist dan community traveler yang telah mendokumentasikan lebih dari 300 resep tradisional dari Sabang sampai Merauke.',
-    photo_url: '/assets/bali.jpg',
+    photo_url: '/assets/pages/tim-kami/fanny.jpg',
     rating: 4.96,
     total_reviews: 341,
     trips_completed: 892,
@@ -162,8 +154,7 @@ const guides: Guide[] = [
       { icon: <Camera size={12} />, label: 'Food Photo' }
     ],
     regions: ['Padang', 'Solo', 'Manado'],
-    instagram: '#',
-    email: 'maya@nusatrip.id'
+    instagram: IG_LINK
   }
 ]
 
@@ -190,12 +181,12 @@ function GuideCard({ guide, index }: { guide: Guide; index: number }) {
       style={{ animationDelay: `${index * 100}ms` }}
     >
       {/* Photo */}
-      <div className="relative h-[280px] overflow-hidden">
+      <div className="relative h-[300px] overflow-hidden">
         <Image
           src={guide.photo_url}
           alt={guide.name}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-600"
+          className="object-cover object-top group-hover:scale-105 transition-transform duration-600"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0B2C4D]/90 via-[#0B2C4D]/20 to-transparent" />
 
@@ -217,40 +208,16 @@ function GuideCard({ guide, index }: { guide: Guide; index: number }) {
           {guide.rating}
         </div>
 
-        {/* Social on hover */}
-        <div className="absolute bottom-[88px] left-0 right-0 flex justify-center gap-2 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-          {guide.instagram && (
-            <a
-              href={guide.instagram}
-              className="w-9 h-9 bg-white/20 backdrop-blur-sm hover:bg-[#FB8C00] rounded-full flex items-center justify-center text-white transition"
-            >
-              <Instagram size={14} />
-            </a>
-          )}
-          {guide.linkedin && (
-            <a
-              href={guide.linkedin}
-              className="w-9 h-9 bg-white/20 backdrop-blur-sm hover:bg-[#FB8C00] rounded-full flex items-center justify-center text-white transition"
-            >
-              <Linkedin size={14} />
-            </a>
-          )}
-          {guide.twitter && (
-            <a
-              href={guide.twitter}
-              className="w-9 h-9 bg-white/20 backdrop-blur-sm hover:bg-[#FB8C00] rounded-full flex items-center justify-center text-white transition"
-            >
-              <Twitter size={14} />
-            </a>
-          )}
-          {guide.email && (
-            <a
-              href={`mailto:${guide.email}`}
-              className="w-9 h-9 bg-white/20 backdrop-blur-sm hover:bg-[#FB8C00] rounded-full flex items-center justify-center text-white transition"
-            >
-              <Mail size={14} />
-            </a>
-          )}
+        {/* Instagram on hover */}
+        <div className="absolute bottom-[88px] left-0 right-0 flex justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+          <a
+            href={guide.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-[#FB8C00] rounded-full flex items-center justify-center text-white transition"
+          >
+            <Instagram size={16} />
+          </a>
         </div>
 
         {/* Name */}
@@ -262,7 +229,6 @@ function GuideCard({ guide, index }: { guide: Guide; index: number }) {
 
       {/* Card body */}
       <div className="p-5">
-        {/* ESLint fix: use &ldquo; &rdquo; instead of raw " */}
         <p className="text-gray-400 text-xs italic mb-4 leading-relaxed">&ldquo;{guide.tagline}&rdquo;</p>
 
         {/* Regions */}
@@ -291,7 +257,7 @@ function GuideCard({ guide, index }: { guide: Guide; index: number }) {
           ))}
         </div>
 
-        {/* Rating row — no profil button */}
+        {/* Rating row */}
         <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
           <StarRating rating={guide.rating} />
           <span className="text-xs text-gray-500">
@@ -347,10 +313,7 @@ export default function GuidePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
               { value: `${guides.length}`, label: 'Guide Aktif' },
-              {
-                value: totalTrips >= 1000 ? `${(totalTrips / 1000).toFixed(1)}K+` : `${totalTrips}+`,
-                label: 'Trip Selesai'
-              },
+              { value: totalTrips >= 1000 ? `${(totalTrips / 1000).toFixed(1)}K+` : `${totalTrips}+`, label: 'Trip Selesai' },
               { value: avgRating, label: 'Rata-rata Rating' },
               { value: '15+', label: 'Destinasi Dikuasai' }
             ].map((s) => (

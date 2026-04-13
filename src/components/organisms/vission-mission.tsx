@@ -49,7 +49,7 @@ export default function VisionMissionSection() {
     <section className="max-w-7xl mx-auto px-4 py-20">
       {/* VISI MISI */}
       <div className="relative overflow-hidden rounded-3xl">
-        <Image src="/assets/desgallery3.jpg" alt="Visi dan Misi NusaTrip" fill className="object-cover" priority />
+        <Image src="/assets/about/bali.jpg" alt="Visi dan Misi NusaTrip" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-black/40" />
 
         {/* Stack vertical on mobile, side by side on desktop */}

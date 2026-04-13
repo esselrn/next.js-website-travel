@@ -10,7 +10,7 @@ export default function AdventureCTA() {
   return (
     <>
       <section className="relative w-full h-[560px] flex items-center overflow-hidden">
-        <Image src="/assets/rajaampat.jpg" alt="Adventure NusaTrip" fill className="object-cover" priority />
+        <Image src="/assets/homepage/raja-ampat.jpg" alt="Adventure NusaTrip" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-[#0B2C4D]/65" />
 
         <div className="relative z-10 max-w-[1440px] mx-auto px-6 w-full">
