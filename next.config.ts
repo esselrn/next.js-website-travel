@@ -11,8 +11,12 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value:
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.sandbox.midtrans.com https://api.midtrans.com; frame-src https://app.sandbox.midtrans.com;"
+            value: [
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.sandbox.midtrans.com https://api.midtrans.com",
+              "frame-src https://app.sandbox.midtrans.com",
+              "img-src 'self' data: blob: https:",
+              "media-src 'self'"
+            ].join('; ')
           }
         ]
       }
