@@ -7,6 +7,7 @@ type PackageCardProps = Package & {
   variant?: 'home' | 'page'
 }
 
+//call package supabase value
 export default function PackageCard({
   id,
   slug,

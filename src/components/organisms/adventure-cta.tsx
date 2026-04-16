@@ -62,11 +62,12 @@ export default function AdventureCTA() {
             onClick={(e) => e.stopPropagation()}
           >
             <iframe
-              src="https://www.youtube.com/embed/aKtb7Y3qOck?autoplay=1&rel=0"
+              src="https://www.youtube.com/embed/aKtb7Y3qOck?autoplay=1&mute=1&rel=0" // Tambahkan mute=1
               title="Wonderland Indonesia"
-              allow="autoplay; encrypted-media"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" // Tambahkan list allow yang lengkap
               allowFullScreen
-              className="w-full h-full"
+              className="w-full h-full border-none"
+              referrerPolicy="strict-origin-when-cross-origin" 
             />
             <button
               onClick={() => setShowVideo(false)}

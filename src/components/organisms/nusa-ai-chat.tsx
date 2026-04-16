@@ -87,19 +87,16 @@ export default function NusaAIChat() {
         .slice(1)
         .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
 
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      // internal API call
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...history],
-          max_tokens: 500,
-          temperature: 0.7
+        body: JSON.stringify({ 
+          messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...history]
         })
-      })
+      });
 
       const data = await res.json()
 
