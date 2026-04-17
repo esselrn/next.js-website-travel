@@ -46,7 +46,7 @@ export default function LoginPage() {
     <div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden">
       {/* BG */}
       <div className="absolute inset-0 z-0">
-        <Image src="/assets/bali.jpg" alt="bg" fill className="object-cover" priority />
+        <Image src="/assets/about/bali.jpg" alt="bg" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-[#0B2C4D]/75" />
         <div className="absolute top-[-80px] left-[-80px] w-[400px] h-[400px] rounded-full bg-[#FB8C00]/10 blur-3xl" />
         <div className="absolute bottom-[-60px] right-[-60px] w-[350px] h-[350px] rounded-full bg-blue-400/10 blur-3xl" />

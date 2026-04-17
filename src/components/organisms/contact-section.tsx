@@ -6,7 +6,7 @@ export default function ContactSection() {
   return (
     <section className="relative w-full">
       {/* Background Image */}
-      <Image src="/assets/desgallery1.jpg" alt="Contact Background" fill className="object-cover" priority />
+      <Image src="/assets/kontak/bromo.jpg" alt="Contact Background" fill className="object-cover" priority />
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/50" />

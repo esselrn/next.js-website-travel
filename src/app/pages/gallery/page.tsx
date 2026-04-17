@@ -108,7 +108,7 @@ export default function GalleryPage() {
 
       {/* HERO */}
       <section className="relative h-[440px] md:h-[520px] flex items-center justify-center overflow-hidden">
-        <Image src="/assets/bali.jpg" alt="Gallery NusaTrip" fill className="object-cover" priority />
+        <Image src="/assets/homepage/bali.jpg" alt="Gallery NusaTrip" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0B2C4D]/80 via-[#0B2C4D]/50 to-[#0B2C4D]/85" />
         <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
           <span className="inline-flex items-center gap-2 text-[#FB8C00] text-sm font-semibold tracking-[0.2em] uppercase mb-5">

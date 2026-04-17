@@ -37,7 +37,7 @@ export default function BlogArticlePage() {
   return (
     <>
       <section className="relative w-full h-[280px] md:h-[340px]">
-        <Image src="/assets/bali01.jpg" alt="Blog" fill priority className="object-cover" />
+        <Image src="/assets/homepage/bali.jpg" alt="Blog" fill priority className="object-cover" />
         <div className="absolute inset-0 bg-[#0B2C4D]/70" />
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6">
           <p className="font-inter text-sm uppercase tracking-widest mb-3 opacity-80">BLOG</p>
