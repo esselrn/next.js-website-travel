@@ -8,18 +8,18 @@ type Props = {
 
 export default function DestinationHeroSection({ destination }: Props) {
   const rating = destination.rating
-  const fullStars = Math.floor(rating)
+  const fullStars = Math.floor(rating) // javascript
   const hasHalf = rating % 1 >= 0.5
 
   const handleScroll = () => {
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  return (
+  return ( // tailwind
     <section className="mb-10">
-      <div className="flex items-start justify-between gap-4 mb-2">
-        <div>
-          <h1 className="text-xl md:text-3xl font-bold text-[#0B2C4D]">{destination.name}</h1>
+      <div className="flex items-start justify-between gap-4 mb-2"> 
+        <div> 
+          <h1 className="text-xl md:text-3xl font-bold text-[#0B2C4D]">{destination.name}</h1> 
           <div className="flex items-center gap-1 mt-1">
             <span className="text-sm font-semibold text-[#0B2C4D]">{rating.toFixed(1)}</span>
             <div className="flex">

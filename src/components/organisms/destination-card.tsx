@@ -17,9 +17,9 @@ export default function DestinationCard({
   price_per_person,
   small = false
 }: DestinationCardProps) {
-  const href = `/destinasi/${slug ?? id}`
+  const href = `/destinasi/${slug ?? id}` // script javascript
 
-  return (
+  return ( // bagian script tailwind
     <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition h-full flex flex-col">
       <div className={`relative w-full ${small ? 'h-[180px]' : 'h-[260px]'}`}>
         <Image src={thumbnail_url ?? '/assets/placeholder.jpg'} alt={name} fill className="object-cover" />
